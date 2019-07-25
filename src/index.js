@@ -22,7 +22,27 @@ module.exports = class Router {
 
     post(path, handler) {
         const route = parser.parseRoute({
-            method: ['POST'],
+            method: [constants.methods.POST],
+            path,
+            handler,
+        });
+
+        this.routes.push(route);
+    }
+
+    patch(path, handler) {
+        const route = parser.parseRoute({
+            method: [constants.methods.PATCH],
+            path,
+            handler,
+        });
+
+        this.routes.push(route);
+    }
+
+    del(path, handler) {
+        const route = parser.parseRoute({
+            method: [constants.methods.DEL],
             path,
             handler,
         });
@@ -52,6 +72,7 @@ module.exports = class Router {
         const ctx = {
             req,
             event,
+            headers: {},
             state: {},
         };
 

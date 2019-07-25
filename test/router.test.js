@@ -49,6 +49,50 @@ describe('router', () => {
     });  
   });
 
+  describe('router.patch', () => {
+    it('should route a PATCH request to a test route', async () => {
+      const router = new Router();
+  
+      router.patch('/', async (ctx) => {
+        ctx.body = 'test';
+        ctx.status = 200;
+      });
+  
+      const response = await router.resolve({
+        request: {
+          url: 'http://localhost:3000/',
+          method: constants.methods.PATCH,
+        },
+      });
+  
+      const body = await responseUtils.getBodyText(response.body);
+  
+      expect(body).to.equal('test');
+    });  
+  });
+
+  describe('router.del', () => {
+    it('should route a DEL request to a test route', async () => {
+      const router = new Router();
+  
+      router.del('/', async (ctx) => {
+        ctx.body = 'test';
+        ctx.status = 200;
+      });
+  
+      const response = await router.resolve({
+        request: {
+          url: 'http://localhost:3000/',
+          method: constants.methods.DEL,
+        },
+      });
+  
+      const body = await responseUtils.getBodyText(response.body);
+  
+      expect(body).to.equal('test');
+    });  
+  });
+
   describe('router path matching', () => {
     it('should match on multiple params combined with static paths', async () => {
       const router = new Router();
@@ -195,9 +239,10 @@ describe('router', () => {
     it('should fall through the first path if it calls next', async () => {
       const router = new Router();
 
-      router.get('/*', async (ctx, next) => {
+      router.get('/hello', async (ctx, next) => {
         ctx.headers.foo = 'bar';
-        
+        console.log('Got here');
+
         await next(ctx);
       });
 
@@ -215,6 +260,7 @@ describe('router', () => {
 
       const body = await responseUtils.getBodyText(response.body);
 
+      console.log(JSON.stringify(response.headers));
       expect(body).to.equal('test');
       // expect(response.headers.foo).to.equal('bar');
     });
