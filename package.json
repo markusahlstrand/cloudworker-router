@@ -1,0 +1,39 @@
+{
+  "name": "cloudworker-router",
+  "version": "1.0.0",
+  "description": "A router for cloudflare workers",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test/**/*.js -require test/bootstrap.js",
+    "lint": "eslint src",
+    "build": "webpack --mode production --config ./webpack.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/markusahlstrand/cloudworker-router.git"
+  },
+  "keywords": [
+    "cloudflare",
+    "workers",
+    "router"
+  ],
+  "author": "Markus Ahlstrand",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/markusahlstrand/cloudworker-router/issues"
+  },
+  "homepage": "https://github.com/markusahlstrand/cloudworker-router#readme",
+  "dependencies": {
+    "lodash.get": "4.4.2"
+  },
+  "devDependencies": {
+    "chai": "4.2.0",
+    "eslint": "6.0.1",
+    "eslint-config-airbnb-base": "13.2.0",
+    "eslint-plugin-import": "2.18.1",
+    "mocha": "6.2.0",
+    "node-cloudworker": "1.0.5",
+    "webpack": "4.36.1",
+    "webpack-cli": "3.3.6"
+  }
+}
