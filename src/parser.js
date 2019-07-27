@@ -42,23 +42,14 @@ function parseRoute({
     };
 }
 
-async function parseRequest(request) {
-    const { url, headers = [], method } = request;
+function parseRequest(request) {    
+    const url = new URL(request.url);
 
-    const urlObj = new URL(url);
-
-    const headersObj = [...headers].reduce((obj, item) => {
-        const header = {};
-        // eslint-disable-next-line prefer-destructuring
-        header[item[0]] = item[1];
-        return Object.assign({}, obj, header);
-    }, {});
-
-    return {
-        headers: headersObj,
-        host: urlObj.hostname,
-        method,
-        path: urlObj.pathname,
+    return {        
+        headers: request.headers,
+        host: url.hostname,
+        method: request.method,
+        path: url.pathname,
     }
 }
 

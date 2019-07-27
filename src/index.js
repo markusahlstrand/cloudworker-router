@@ -1,13 +1,11 @@
 const parser = require('./parser');
 const resolver = require('./resolver');
 const constants = require('./constants');
+const Context = require('./context');
 
 module.exports = class Router {
     constructor() {
         this.routes = [];
-        // this.routes = rules.map(parser.parseRoute);
-        // // Merge the defaultHandlers with any custom handlers
-        // this.handlers = Object.assign({}, defaultHandlers, handlers);    
     }
 
     get(path, handler) {
@@ -15,6 +13,7 @@ module.exports = class Router {
             method: [constants.methods.GET, constants.methods.HEAD],
             path,
             handler,
+            allowOptions: true,
         });
 
         this.routes.push(route);
@@ -25,6 +24,7 @@ module.exports = class Router {
             method: [constants.methods.POST],
             path,
             handler,
+            allowOptions: true,
         });
 
         this.routes.push(route);
@@ -35,6 +35,7 @@ module.exports = class Router {
             method: [constants.methods.PATCH],
             path,
             handler,
+            allowOptions: true,
         });
 
         this.routes.push(route);
@@ -45,6 +46,16 @@ module.exports = class Router {
             method: [constants.methods.DEL],
             path,
             handler,
+            allowOptions: true,
+        });
+
+        this.routes.push(route);
+    }
+
+    use(handler) {
+        const route = parser.parseRoute({
+            handler,
+            allowOptions: false,
         });
 
         this.routes.push(route);
@@ -66,22 +77,14 @@ module.exports = class Router {
     }
 
     async resolve(event) {
-        const req = await parser.parseRequest(event.request);
-
-        // This is the context passed between resolvers
-        const ctx = {
-            req,
-            event,
-            headers: {},
-            state: {},
-        };
+        const ctx = new Context(event);
 
         try {
             await resolver.recurseRoutes(ctx, this.routes);
 
             return new Response(ctx.body, {
                 status: ctx.status,
-                headers: ctx.headers,
+                headers: ctx.response.headers,
             });
         } catch (err) {
             return new Response(err.message, {

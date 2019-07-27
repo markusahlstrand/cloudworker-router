@@ -21,13 +21,13 @@ function getParams(req, route) {
 /**
  * Checks if the route is valid for a request
  * @param {route} route 
- * @param {*} req 
+ * @param {*} request 
  */
-function testPath(route, req) {
+function testPath(route, request) {
     // Check the method and path
-    return route.method.test(req.method)
-        && route.host.test(req.host)
-        && route.path.test(req.path);
+    return route.method.test(request.method)
+        && route.host.test(request.host)
+        && route.path.test(request.path);
 }
 
 async function recurseRoutes(ctx, routes) {
@@ -40,11 +40,11 @@ async function recurseRoutes(ctx, routes) {
             });
     }
 
-    if (!testPath(route, ctx.req)) {
+    if (!testPath(route, ctx.request)) {
         return recurseRoutes(ctx, nextRoutes);
     }
 
-    ctx.params = getParams(ctx.req, route);
+    ctx.params = getParams(ctx.request, route);
 
     try {
         return route.handler(ctx, async result => recurseRoutes(result, nextRoutes));
@@ -55,5 +55,5 @@ async function recurseRoutes(ctx, routes) {
 }
 
 module.exports = {
-    recurseRoutes,
+    recurseRoutes,    
 };

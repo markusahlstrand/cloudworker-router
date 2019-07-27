@@ -15,14 +15,34 @@ describe('router', () => {
       });
   
       const response = await router.resolve({
+        request: new Request('http://localhost:3000/', {
+          method: constants.methods.GET,
+        }),
+      });
+  
+      const body = await responseUtils.getBodyText(response.body);
+  
+      expect(body).to.equal('test');
+    });  
+
+    it('should route hanlde HEAD requests with the GET paths', async () => {
+      const router = new Router();
+  
+      router.get('/', async (ctx) => {
+        ctx.body = 'test';
+        ctx.status = 200;
+      });
+  
+      const response = await router.resolve({
         request: {
           url: 'http://localhost:3000/',
-          method: constants.methods.GET,
+          method: constants.methods.HEAD,
         },
       });
   
       const body = await responseUtils.getBodyText(response.body);
   
+      // The body is removed in cloudflare and the correct content-length headers set.
       expect(body).to.equal('test');
     });  
   });
@@ -91,6 +111,51 @@ describe('router', () => {
   
       expect(body).to.equal('test');
     });  
+  });
+
+  describe('router.use', () => {
+    it('should route all requests to a middleware', async () => {
+      const router = new Router();
+
+      router.use(async (ctx, next) => {
+        ctx.set('foo', 'bar');
+        next(ctx);
+      });      
+  
+      router.get('/', async (ctx) => {
+        ctx.body = 'test';
+        ctx.status = 200;
+      });
+  
+      const response = await router.resolve({
+        request: {
+          url: 'http://localhost:3000/',
+          method: constants.methods.HEAD,
+        },
+      });
+  
+      const body = await responseUtils.getBodyText(response.body);
+  
+      // The body is removed in cloudflare and the correct content-length headers set.
+      expect(body).to.equal('test');
+    });
+  });
+
+  describe('options requests', () => {
+    it.skip('should by default respond to OPTIONS requests when a matching GET route is found', async () => {
+      const router = new Router();
+  
+      router.get('/', async (ctx) => {});
+  
+      const response = await router.resolve({
+        request: {
+          url: 'http://localhost:3000/',
+          method: constants.methods.OPTIONS,
+        },
+      });
+    
+      expect(response.headers.get('allow')).to.equal('OPTIONS, GET');
+    });
   });
 
   describe('router path matching', () => {
@@ -239,10 +304,9 @@ describe('router', () => {
     it('should fall through the first path if it calls next', async () => {
       const router = new Router();
 
-      router.get('/hello', async (ctx, next) => {
-        ctx.headers.foo = 'bar';
-        console.log('Got here');
-
+      router.get('/.*', async (ctx, next) => {
+        ctx.set('foo', 'bar');
+        
         await next(ctx);
       });
 
@@ -251,18 +315,14 @@ describe('router', () => {
         ctx.status = 200;
       });
 
-      const response = await router.resolve({
-        request: {
-          url: 'http://test.example.com/hello',
-          method: constants.methods.GET,
-        },
-      });
+      const request = new Request('http://test.example.com/hello');
+
+      const response = await router.resolve({request});
 
       const body = await responseUtils.getBodyText(response.body);
-
-      console.log(JSON.stringify(response.headers));
+      
       expect(body).to.equal('test');
-      // expect(response.headers.foo).to.equal('bar');
+      expect(response.headers.get('foo')).to.equal('bar');
     });
   });  
 });

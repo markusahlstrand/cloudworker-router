@@ -77,3 +77,19 @@ router.add({
     ctx.body = ctx.params.sub; // Will contain the subdomain from the request
 });
 ```
+
+### Context
+
+The context encapsulates the request and the response object.
+
+A new context instance are created for each request.
+
+## Cloudflare specifics
+
+### Chunked encoding
+
+By default cloudflare uses chunked encoding. Content-Length headers are not allowed in chunked responses according to the http-spec so they are automatically removed by cloudflare. If the worker respondes directly with a buffer rather than streaming the response cloudflare will automatically add/overwrite with a correct Content-Length header.
+
+### Head requests
+
+If a worker respondes with a body to a head request cloudflare will remove the body and set the correct Content-Length headers. From a router perspective the head requests are handled just like get requests.
