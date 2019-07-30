@@ -1,59 +1,60 @@
 function parseRoute({
-    host = '.*',
-    path = '.*',
-    method = ['.*'],
-    handler,
-    data,
+  host = '.*',
+  path = '.*',
+  method = ['.*'],
+  handler,
+  data,
 }) {
-    const hostVariables = [];
-    const pathVariables = [];
+  const hostVariables = [];
+  const pathVariables = [];
 
-    const hostRegexpString = host
-        // Replace any variables in the host
-        .replace(/(:([^.]+))/g, ($1, $2, $3) => {
-            hostVariables.push($3);
-            return '([^.]+)';
-        });
-
-    // Then parse the variables in the path
-    const pathRegexpString = path.replace(/(:([^/]+))/g, ($1, $2, $3) => {
-        // Check for wildcard parameters
-        if ($3.slice(-1) === '*') {
-            pathVariables.push($3.slice(0, $3.length - 1));
-            return '(.*)';
-        } else {
-            pathVariables.push($3);
-            return '([^/]*)';
-        }
+  const hostRegexpString = host
+    // Replace any variables in the host
+    .replace(/(:([^.]+))/g, ($1, $2, $3) => {
+      hostVariables.push($3);
+      return '([^.]+)';
     });
 
-    const hostRegex = new RegExp(`^${hostRegexpString}$`, 'i');
-    const pathRegex = new RegExp(`^${pathRegexpString}$`, 'i');
-    const methodRegex = new RegExp(`^${method.join('|')}$`, 'i');
+  // Then parse the variables in the path
+  const pathRegexpString = path.replace(/(:([^/]+))/g, ($1, $2, $3) => {
+    // Check for wildcard parameters
+    if ($3.slice(-1) === '*') {
+      pathVariables.push($3.slice(0, $3.length - 1));
+      return '(.*)';
+    }
 
-    return {
-        hostVariables,
-        pathVariables,
-        host: hostRegex,
-        path: pathRegex,
-        method: methodRegex,
-        handler,
-        data,
-    };
+    pathVariables.push($3);
+    return '([^/]*)';
+  });
+
+  const hostRegex = new RegExp(`^${hostRegexpString}$`, 'i');
+  const pathRegex = new RegExp(`^${pathRegexpString}$`, 'i');
+  const methodRegex = new RegExp(`^${method.join('|')}$`, 'i');
+
+  return {
+    hostVariables,
+    pathVariables,
+    host: hostRegex,
+    path: pathRegex,
+    method: methodRegex,
+    handler,
+    data,
+  };
 }
 
-function parseRequest(request) {    
-    const url = new URL(request.url);
+function parseRequest(request) {
+  const url = new URL(request.url);
 
-    return {        
-        headers: request.headers,
-        host: url.hostname,
-        method: request.method,
-        path: url.pathname,
-    }
+  return {
+    headers: request.headers,
+    host: url.hostname,
+    method: request.method,
+    path: url.pathname,
+    query: url.searchParams,
+  };
 }
 
 module.exports = {
-    parseRoute,
-    parseRequest,
-}
+  parseRoute,
+  parseRequest,
+};

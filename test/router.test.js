@@ -141,23 +141,6 @@ describe('router', () => {
     });
   });
 
-  describe('options requests', () => {
-    it.skip('should by default respond to OPTIONS requests when a matching GET route is found', async () => {
-      const router = new Router();
-  
-      router.get('/', async (ctx) => {});
-  
-      const response = await router.resolve({
-        request: {
-          url: 'http://localhost:3000/',
-          method: constants.methods.OPTIONS,
-        },
-      });
-    
-      expect(response.headers.get('allow')).to.equal('OPTIONS, GET');
-    });
-  });
-
   describe('router path matching', () => {
     it('should match on multiple params combined with static paths', async () => {
       const router = new Router();

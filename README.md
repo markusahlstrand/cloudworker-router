@@ -5,7 +5,6 @@ A small (6,75KB) koajs-router-style router for cloudflare workers.
 * Express style routing with router.get, router.post ..
 * Named URL paramters
 * Route based on host headers
-* Responds to OPTIONS requests
 * Multiple route middlewares
 * ES7 async/await support
 
@@ -83,6 +82,9 @@ router.add({
 The context encapsulates the request and the response object.
 
 A new context instance are created for each request.
+
+The context object is similar to the koa context object, with a few differences:
+- ctx.query is an iteratable rather then an object
 
 ## Cloudflare specifics
 

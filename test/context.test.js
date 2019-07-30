@@ -16,4 +16,14 @@ describe('context', () => {
             expect(ctx.header('x-foo')).to.equal('bar');
         });
     });
+
+    describe('querystring', () => {
+        it('should add the querystring parameters to the query property', () => {
+            const request = new Request('http://example.com?foo=bar');
+
+            const ctx = new Context({ request });
+
+            expect(ctx.query.get('foo')).to.equal('bar');
+        });
+    });
 });
