@@ -1,6 +1,6 @@
 # Cloudworker Router
 
-A small (6,75KB) koajs-router-style router for cloudflare workers.
+A small (3,36KB) koajs-router-style router for cloudflare workers.
 
 * Express style routing with router.get, router.post ..
 * Named URL paramters
