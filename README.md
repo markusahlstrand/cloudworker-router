@@ -34,6 +34,8 @@ addEventListener('fetch', event => {
 
 The router exposes get, post, patch and del methods as shorthands for the most common use cases. For examples of their usage, see the example folder. HEAD and OPTIONS requests are handled automatically by the router.
 
+For more examples on usage and deployment see the examples folder in the project.
+
 ### Defining paths
 
 The paths are translated to regular expressions for matching. Query strings are not considred when matching requests.

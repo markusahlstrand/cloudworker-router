@@ -1,7 +1,4 @@
-const ncw = require('node-cloudworker');
 const Router = require('../src');
-
-ncw.applyShims();
 
 const router = new Router();
 router.get('/', async (ctx) => {
@@ -20,6 +17,12 @@ router.get('/hello/:name', async (ctx) => {
     ctx.status = 200;
 });
 
-ncw.start(async (event) => {
-    return await router.resolve(event);
-});
+/**
+ * Fetch and log a given request object
+ * @param {Request} options
+ */
+async function handler(event) {
+  return router.resolve(event);
+}
+
+module.exports = handler;
