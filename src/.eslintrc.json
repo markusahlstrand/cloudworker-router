@@ -2,7 +2,9 @@
   "extends": "airbnb-base",
   "plugins": [],
   "rules": {
-    "no-use-before-define": ["error", { "functions": false } ],
-    "comma-dangle": ["error", "always-multiline"]
+    "no-use-before-define": ["error", { "functions": false }],
+    "comma-dangle": ["error", "always-multiline"],
+    "arrow-parens": 0,
+    "object-curly-newline": 0
   }
 }
