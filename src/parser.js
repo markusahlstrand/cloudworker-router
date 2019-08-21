@@ -42,9 +42,12 @@ function parseRequest(request) {
   return {
     headers: request.headers,
     href: request.url,
-    host: url.hostname,
+    host: url.host,
+    hostname: url.hostname,
     method: request.method,
+    origin: `${url.protocol}//${url.host}`,
     path: url.pathname,
+    protocol: url.protocol.slice(0, -1), // Remove the semicolon at the end
     query: url.searchParams,
   };
 }

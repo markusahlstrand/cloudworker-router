@@ -36,5 +36,41 @@ describe('context', () => {
       // Note: it adds a trailing slash to the url..
       expect(ctx.request.href).to.equal('http://example.com/?foo=bar');
     });
+
+    it('should add the protocol to the request object', () => {
+      const request = new Request('http://example.com?foo=bar');
+
+      const ctx = new Context({ request });
+
+      // Note: it adds a trailing slash to the url..
+      expect(ctx.request.protocol).to.equal('http');
+    });
+
+    it('should add the host to the request object', () => {
+      const request = new Request('http://example.com:3000?foo=bar');
+
+      const ctx = new Context({ request });
+
+      // Note: it adds a trailing slash to the url..
+      expect(ctx.request.host).to.equal('example.com:3000');
+    });
+
+    it('should add the hostname to the request object', () => {
+      const request = new Request('http://example.com:3000?foo=bar');
+
+      const ctx = new Context({ request });
+
+      // Note: it adds a trailing slash to the url..
+      expect(ctx.request.hostname).to.equal('example.com');
+    });
+
+    it('should add the origin to the request object', () => {
+      const request = new Request('http://example.com:3000?foo=bar');
+
+      const ctx = new Context({ request });
+
+      // Note: it adds a trailing slash to the url..
+      expect(ctx.request.origin).to.equal('http://example.com:3000');
+    });
   });
 });
