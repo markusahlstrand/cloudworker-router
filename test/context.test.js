@@ -23,7 +23,7 @@ describe('context', () => {
 
       const ctx = new Context({ request });
 
-      expect(ctx.query.get('foo')).to.equal('bar');
+      expect(ctx.query.foo).to.equal('bar');
     });
   });
 

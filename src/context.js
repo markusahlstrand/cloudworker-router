@@ -20,7 +20,7 @@ module.exports = class Context {
    * @param {string} key
    */
   header(key) {
-    return this.request.headers.get(key);
+    return this.request.headers[key];
   }
 
   set(key, value) {

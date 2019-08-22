@@ -36,11 +36,27 @@ function parseRoute({ host = '.*', path = '.*', method = ['.*'], handler, data }
   };
 }
 
+/**
+ * Convert a map to json object
+ * @param {*} map
+ */
+function mapToObject(map) {
+  const obj = {};
+  map.forEach((value, key) => {
+    obj[key] = value;
+  });
+
+  return obj;
+}
+
 function parseRequest(request) {
   const url = new URL(request.url);
 
+  const headers = mapToObject(request.headers);
+  const query = mapToObject(url.searchParams);
+
   return {
-    headers: request.headers,
+    headers,
     href: request.url,
     host: url.host,
     hostname: url.hostname,
@@ -48,10 +64,9 @@ function parseRequest(request) {
     origin: `${url.protocol}//${url.host}`,
     path: url.pathname,
     protocol: url.protocol.slice(0, -1), // Remove the semicolon at the end
-    query: url.searchParams,
+    query,
   };
 }
-
 module.exports = {
   parseRoute,
   parseRequest,

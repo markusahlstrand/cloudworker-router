@@ -2,11 +2,11 @@
 
 A small (3,36KB) koajs-router-style router for cloudflare workers.
 
-* Express style routing with router.get, router.post ..
-* Named URL paramters
-* Route based on host headers
-* Multiple route middlewares
-* ES7 async/await support
+- Express style routing with router.get, router.post ..
+- Named URL paramters
+- Route based on host headers
+- Multiple route middlewares
+- ES7 async/await support
 
 ## Installation
 
@@ -19,6 +19,7 @@ npm install cloudworker-router --save
 The idea is to make the router work as closely to the koajs-router as possible, partly because it's a tried and tested module but also to make the learning curve as flat as possible.
 
 Basic example with GET request
+
 ```
 const Router = require('cloudworker-router');
 
@@ -32,7 +33,7 @@ addEventListener('fetch', event => {
 })
 ```
 
-The router exposes get, post, patch and del methods as shorthands for the most common use cases. For examples of their usage, see the example folder. HEAD and OPTIONS requests are handled automatically by the router.
+The router exposes get, post, patch and del methods as shorthands for the most common use cases. For examples of their usage, see the example folder. HEAD requests are handled automatically by the router.
 
 For more examples on usage and deployment see the examples folder in the project.
 
@@ -56,6 +57,7 @@ router.get('/:wildcard*', async (ctx) => {
 ```
 
 For routing on other properties than the method or the path the routes can be added using the router.add function:
+
 ```
 router.add({
     host: 'test.example.com', // Defaults to .*
@@ -68,6 +70,7 @@ router.add({
 ```
 
 Named parameters can be added to the host property as well and are the values are also added to ctx.params:
+
 ```
 router.add({
     host: ':sub.example.com',
@@ -84,9 +87,6 @@ router.add({
 The context encapsulates the request and the response object.
 
 A new context instance are created for each request.
-
-The context object is similar to the koa context object, with a few differences:
-- ctx.query is an iteratable rather then an object
 
 ## Cloudflare specifics
 
