@@ -36,24 +36,20 @@ function parseRoute({ host = '.*', path = '.*', method = ['.*'], handler, data }
   };
 }
 
-/**
- * Convert a map to json object
- * @param {*} map
- */
-function mapToObject(map) {
-  const obj = {};
-  map.forEach((value, key) => {
-    obj[key] = value;
-  });
-
-  return obj;
+function instanceToJson(instance) {
+  return [...instance].reduce((obj, item) => {
+    const prop = {};
+    // eslint-disable-next-line prefer-destructuring
+    prop[item[0]] = item[1];
+    return { ...obj, ...prop };
+  }, {});
 }
 
 function parseRequest(request) {
   const url = new URL(request.url);
 
-  const headers = mapToObject(request.headers);
-  const query = mapToObject(url.searchParams);
+  const query = instanceToJson(url.searchParams);
+  const headers = instanceToJson(request.headers);
 
   return {
     headers,

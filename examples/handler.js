@@ -2,19 +2,33 @@ const Router = require('../src');
 
 const router = new Router();
 router.get('/', async (ctx) => {
-    ctx.body = 'Hello world!';
-    ctx.status = 200;
+  ctx.body = 'Hello world!';
+  ctx.status = 200;
 });
 
 router.get('/hello', async (ctx) => {
-    ctx.body = `Hello ${ctx.query.get('name')}!`;
-    ctx.status = 200;
+  ctx.body = `Hello ${ctx.query.get('name')}!`;
+  ctx.status = 200;
 });
 
-
 router.get('/hello/:name', async (ctx) => {
-    ctx.body = `Hello ${ctx.params.name}!`;
-    ctx.status = 200;
+  ctx.body = `Hello ${ctx.params.name}!`;
+  ctx.status = 200;
+});
+
+router.get('/headers', async (ctx) => {
+  ctx.body = JSON.stringify(ctx.request.headers);
+  ctx.status = 200;
+});
+
+router.get('/query', async (ctx) => {
+  ctx.body = JSON.stringify(ctx.request.query);
+  ctx.status = 200;
+});
+
+router.get('/event', async (ctx) => {
+  ctx.body = JSON.stringify(ctx.event);
+  ctx.status = 200;
 });
 
 /**

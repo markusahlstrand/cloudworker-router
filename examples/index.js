@@ -6,7 +6,6 @@ const handler = require('./handler');
 
 async function fetchAndApply(event) {
   try {
-    // return new Response('Test');
     return handler(event);
   } catch (err) {
     // eslint-disable-next-line no-undef

@@ -30,5 +30,5 @@ functions:
     webpack: false
     events:
       - http:
-          url: 'ahlstrand.es/*'
+          url: 'router.ahlstrand.es/*'
           method: ANY
