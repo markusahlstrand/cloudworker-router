@@ -18,6 +18,9 @@ router.get('/hello/:name', async (ctx) => {
 
 router.get('/headers', async (ctx) => {
   ctx.body = JSON.stringify(ctx.request.headers);
+  // Set a response header
+
+  ctx.set('X-Foo', 'Bar');
   ctx.status = 200;
 });
 

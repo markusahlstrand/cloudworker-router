@@ -6,7 +6,7 @@ module.exports = class Context {
     this.event = event;
     this.state = {};
     this.response = {
-      headers: new Map(),
+      headers: {},
     };
     this.body = '';
     this.status = 404;
@@ -24,6 +24,6 @@ module.exports = class Context {
   }
 
   set(key, value) {
-    this.response.headers.set(key, value);
+    this.response.headers[key] = value;
   }
 };
