@@ -61,6 +61,7 @@ function parseRequest(request) {
     path: url.pathname,
     protocol: url.protocol.slice(0, -1), // Remove the semicolon at the end
     query,
+    querystring: url.search.slice(1),
   };
 }
 module.exports = {

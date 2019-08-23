@@ -88,6 +88,94 @@ The context encapsulates the request and the response object.
 
 A new context instance are created for each request.
 
+An example of a context object created for a request:
+
+```
+{
+  request: {
+    headers: {
+      accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
+      accept-encoding: "gzip",
+      accept-language: "en-GB,en-US;q=0.9,en;q=0.8,es;q=0.7",
+      cf-connecting-ip: "88.0.193.153",
+      cf-ipcountry: "ES",
+      cf-ray: "50ac448ca95ed685",
+      cf-visitor: "{"scheme":"http"}",
+      connection: "Keep-Alive",
+      cookie: "__cfduid=dee52228d3848ca5abc16f5c6be4640981565603001",
+      host: "router.ahlstrand.es",
+      upgrade-insecure-requests: "1",
+      user-agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.87 Safari/537.36",
+      x-forwarded-proto: "http",
+      x-real-ip: "88.0.193.153"
+    },
+    href: "http://router.ahlstrand.es/ctx?foo=bar",
+    host: "router.ahlstrand.es",
+    hostname: "router.ahlstrand.es",
+    method: "GET",
+    origin: "http://router.ahlstrand.es",
+    path: "/ctx",
+    protocol: "http",
+    query: {
+      foo: "bar"
+    },
+    querystring: "foo=bar"
+  },
+  event: {
+    request: {
+      cf: {
+        tlsVersion: "",
+        httpProtocol: "HTTP/1.1",
+        tlsCipher: "",
+        asn: 3352,
+        requestPriority: "",
+        clientTrustScore: 91,
+        country: "ES",
+        tlsClientAuth: {
+          certIssuerDNLegacy: "",
+          certIssuerDN: "",
+          certIssuerDNRFC2253: "",
+          certSubjectDNLegacy: "",
+          certVerified: "NONE",
+          certNotAfter: "",
+          certSubjectDN: "",
+          certFingerprintSHA1: "",
+          certNotBefore: "",
+          certSerial: "",
+          certPresented: "0",
+          certSubjectDNRFC2253: ""
+        },
+        colo: "MAD"
+      },
+      fetcher: {
+
+      },
+      redirect: "manual",
+      headers: {
+
+      },
+      url: "http://router.ahlstrand.es/ctx?foo=bar",
+      method: "GET",
+      bodyUsed: false,
+      body: null
+    },
+    type: "fetch"
+  },
+  state: {},
+  response: {
+    headers: {
+
+    }
+  },
+  body: "",
+  status: 404,
+  query: {
+    foo: "bar"
+  },
+  params: {}
+}
+```
+
 ## Cloudflare specifics
 
 ### Chunked encoding

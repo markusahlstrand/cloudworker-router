@@ -34,6 +34,11 @@ router.get('/event', async (ctx) => {
   ctx.status = 200;
 });
 
+router.get('/ctx', async (ctx) => {
+  ctx.body = JSON.stringify(ctx);
+  ctx.status = 200;
+});
+
 /**
  * Fetch and log a given request object
  * @param {Request} options

@@ -72,5 +72,14 @@ describe('context', () => {
       // Note: it adds a trailing slash to the url..
       expect(ctx.request.origin).to.equal('http://example.com:3000');
     });
+
+    it('should add the querystring to the request object', () => {
+      const request = new Request('http://example.com:3000?foo=bar');
+
+      const ctx = new Context({ request });
+
+      // Note: it adds a trailing slash to the url..
+      expect(ctx.request.querystring).to.equal('foo=bar');
+    });
   });
 });
