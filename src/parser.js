@@ -49,11 +49,15 @@ function parseRequest(request) {
   const url = new URL(request.url);
 
   const query = instanceToJson(url.searchParams);
-  const headers = instanceToJson(request.headers);
+  const headers = instanceToJson(request.headers);  
+
+  if (headers.host) {
+    url.hostname = headers.host;
+  }
 
   return {
     headers,
-    href: request.url,
+    href: url.href,
     host: url.host,
     hostname: url.hostname,
     method: request.method,
