@@ -119,7 +119,8 @@ An example of a context object created for a request:
     query: {
       foo: "bar"
     },
-    querystring: "foo=bar"
+    querystring: "foo=bar",
+    search: "?foo=bar
   },
   event: {
     request: {

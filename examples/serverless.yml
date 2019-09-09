@@ -6,7 +6,6 @@ provider:
   name: cloudflare
   environment:
   config:
-    # Ahlstrand.es
     accountId: ${env:CLOUDFLARE_ACCOUNT_ID}
     zoneId: ${env:CLOUDFLARE_ZONE_ID}    
 

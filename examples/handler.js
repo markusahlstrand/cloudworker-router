@@ -29,6 +29,11 @@ router.get('/query', async (ctx) => {
   ctx.status = 200;
 });
 
+router.get('/wildcard/:file*', async (ctx) => {
+  ctx.body = ctx.params.file;
+  ctx.status = 200;
+});
+
 router.get('/event', async (ctx) => {
   ctx.body = JSON.stringify(ctx.event);
   ctx.status = 200;

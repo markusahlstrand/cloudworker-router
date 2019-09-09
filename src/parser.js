@@ -1,4 +1,4 @@
-function parseRoute({ host = '.*', path = '.*', method = ['.*'], handler, data }) {
+function parseRoute({ host = '.*', path = '.*', method = ['.*'], handler, handlerName, data }) {
   const hostVariables = [];
   const pathVariables = [];
 
@@ -32,6 +32,7 @@ function parseRoute({ host = '.*', path = '.*', method = ['.*'], handler, data }
     path: pathRegex,
     method: methodRegex,
     handler,
+    handlerName,
     data,
   };
 }
@@ -49,7 +50,7 @@ function parseRequest(request) {
   const url = new URL(request.url);
 
   const query = instanceToJson(url.searchParams);
-  const headers = instanceToJson(request.headers);  
+  const headers = instanceToJson(request.headers);
 
   if (headers.host) {
     url.hostname = headers.host;
@@ -66,6 +67,7 @@ function parseRequest(request) {
     protocol: url.protocol.slice(0, -1), // Remove the semicolon at the end
     query,
     querystring: url.search.slice(1),
+    search: url.search,
   };
 }
 module.exports = {
