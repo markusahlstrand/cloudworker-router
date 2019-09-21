@@ -40,7 +40,7 @@ module.exports = class Router {
 
   del(path, handler) {
     const route = parser.parseRoute({
-      method: [constants.methods.DEL],
+      method: [constants.methods.DELETE],
       path,
       handler,
     });
