@@ -23,7 +23,24 @@ module.exports = class Context {
     return this.request.headers[key];
   }
 
+  /**
+   * Set a header on the response
+   * @param {string} key
+   * @param {string} value
+   */
   set(key, value) {
     this.response.headers[key] = value;
+  }
+
+  /**
+   * Creates a cloned context
+   */
+  clone() {
+    const clonedEvent = { ...this.event };
+    clonedEvent.request = clonedEvent.request.clone();
+
+    const clonedContext = new Context(clonedEvent);
+
+    return clonedContext;
   }
 };
