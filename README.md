@@ -162,7 +162,9 @@ An example of a context object created for a request:
     },
     type: "fetch"
   },
-  state: {},
+  state: {
+    handlers: []
+  },
   response: {
     headers: {
 
@@ -176,6 +178,8 @@ An example of a context object created for a request:
   params: {}
 }
 ```
+
+The name all invoced handlers is stored in an array in the state for debugging purposes.
 
 ## Cloudflare specifics
 

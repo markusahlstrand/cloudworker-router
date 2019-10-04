@@ -22,9 +22,12 @@ function getParams(req, route) {
 function testPath(route, request) {
   // Check the method and path
   return (
-    route.method.test(request.method)
-    && route.host.test(request.host)
-    && route.path.test(request.path)
+    // Stupid prettier rules..
+    // eslint-disable-next-line operator-linebreak
+    route.method.test(request.method) &&
+    // eslint-disable-next-line operator-linebreak
+    route.host.test(request.host) &&
+    route.path.test(request.path)
   );
 }
 
@@ -32,7 +35,7 @@ async function recurseRoutes(ctx, routes) {
   const [route, ...nextRoutes] = routes;
   if (!route) {
     // eslint-disable-next-line
-    return new Response("NOT_FOUND", {
+    return new Response('NOT_FOUND', {
       status: 404,
     });
   }
@@ -41,10 +44,13 @@ async function recurseRoutes(ctx, routes) {
     return recurseRoutes(ctx, nextRoutes);
   }
 
+  ctx.state.handlers = ctx.state.handlers || [];
+  // Use the provided name and fall back to the name of the function
+  ctx.state.handlers.push(route.handlerName || route.handler.name);
   ctx.params = getParams(ctx.request, route);
 
   try {
-    return route.handler(ctx, async result => recurseRoutes(result, nextRoutes));
+    return route.handler(ctx, async (result) => recurseRoutes(result, nextRoutes));
   } catch (err) {
     err.route = route.handler.name;
     throw err;

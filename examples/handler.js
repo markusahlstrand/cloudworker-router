@@ -6,6 +6,18 @@ router.get('/', async (ctx) => {
   ctx.status = 200;
 });
 
+router.add(
+  {
+    method: ['GET'],
+    handlerName: 'TestHandler',
+    path: '/test-handlername',
+  },
+  async (ctx) => {
+    ctx.body = 'Test for handler names';
+    ctx.status = 200;
+  },
+);
+
 router.get('/hello', async (ctx) => {
   ctx.body = `Hello ${ctx.query.get('name')}!`;
   ctx.status = 200;
