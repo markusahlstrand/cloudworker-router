@@ -5,6 +5,7 @@ module.exports = class Context {
     this.request = parser.parseRequest(event.request);
     this.event = event;
     this.state = {};
+    this.cloned = false;
     this.response = {
       headers: {},
     };
@@ -36,10 +37,9 @@ module.exports = class Context {
    * Creates a cloned context
    */
   clone() {
-    const clonedEvent = { ...this.event };
-    clonedEvent.request = clonedEvent.request.clone();
-
-    const clonedContext = new Context(clonedEvent);
+    const clonedContext = new Context(this.event);
+    clonedContext.request = parser.parseRequest(event.request.clone());
+    clonedContext.cloned = true;
 
     return clonedContext;
   }
