@@ -4,7 +4,8 @@
   "description": "A router for cloudflare workers",
   "main": "src/index.js",
   "scripts": {
-    "test": "mocha test/**/*.js -require test/bootstrap.js",
+    "test": "npm run mocha & npm run lint",
+    "mocha": "mocha test/**/*.js -require test/bootstrap.js",
     "lint": "eslint src",
     "build": "webpack --mode production --config ./webpack.config.js"
   },

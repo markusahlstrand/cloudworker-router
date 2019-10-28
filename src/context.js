@@ -38,7 +38,6 @@ module.exports = class Context {
    */
   clone() {
     const clonedContext = new Context(this.event);
-    clonedContext.request = parser.parseRequest(event.request.clone());
     clonedContext.cloned = true;
 
     return clonedContext;
