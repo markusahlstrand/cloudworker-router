@@ -105,7 +105,7 @@ describe('router', () => {
       const response = await router.resolve({
         request: {
           url: 'http://localhost:3000/',
-          method: constants.methods.DEL,
+          method: constants.methods.DELETE,
           headers: new Map(),
         },
       });
