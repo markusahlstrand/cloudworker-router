@@ -40,7 +40,7 @@ module.exports = class Router {
 
   del(path, handler) {
     const route = parser.parseRoute({
-      method: [constants.methods.DEL],
+      method: [constants.methods.DELETE],
       path,
       handler,
     });
@@ -96,7 +96,7 @@ module.exports = class Router {
         headers: ctx.response.headers,
       });
     } catch (err) {
-    // eslint-disable-next-line no-undef
+      // eslint-disable-next-line no-undef
       return new Response(err.message, {
         status: 500,
       });

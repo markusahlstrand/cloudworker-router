@@ -1,6 +1,6 @@
 module.exports = {
   methods: {
-    DEL: 'DEL',
+    DELETE: 'DELETE',
     GET: 'GET',
     HEAD: 'HEAD',
     OPTIONS: 'OPTIONS',

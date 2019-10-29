@@ -56,6 +56,11 @@ router.get('/ctx', async (ctx) => {
   ctx.status = 200;
 });
 
+router.del('/test-delete', async (ctx) => {
+  ctx.body = 'Deleted';
+  ctx.status = 200;
+});
+
 /**
  * Fetch and log a given request object
  * @param {Request} options
