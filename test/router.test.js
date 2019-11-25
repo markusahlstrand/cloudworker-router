@@ -321,3 +321,61 @@ describe('router', () => {
     });
   });
 });
+
+describe('router header matching', () => {
+  it('should match a header', async () => {
+    const router = new Router();
+    router.add(
+      {
+        headers: {
+          foo: 'bar',
+        },
+      },
+      async (ctx) => {
+        ctx.body = 'test';
+        ctx.status = 200;
+      },
+    );
+
+    const request = {
+      url: 'http://foo.example.com/dummy',
+      method: constants.methods.GET,
+      headers: new Map(),
+    };
+
+    request.headers.set('foo', 'bar');
+
+    const response = await router.resolve({
+      request,
+    });
+
+    expect(response.status).to.equal(200);
+  });
+
+  it('should not match a header', async () => {
+    const router = new Router();
+    router.add(
+      {
+        headers: {
+          foo: 'bar',
+        },
+      },
+      async (ctx) => {
+        ctx.body = 'test';
+        ctx.status = 200;
+      },
+    );
+
+    const request = {
+      url: 'http://foo.example.com/dummy',
+      method: constants.methods.GET,
+      headers: new Map(),
+    };
+
+    const response = await router.resolve({
+      request,
+    });
+
+    expect(response.status).to.equal(404);
+  });
+});
