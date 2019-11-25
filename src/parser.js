@@ -1,4 +1,12 @@
-function parseRoute({ host = '.*', path = '.*', method = ['.*'], handler, handlerName, data }) {
+function parseRoute({
+  host = '.*',
+  path = '.*',
+  method = ['.*'],
+  handler,
+  handlerName,
+  headers = {},
+  data,
+}) {
   const hostVariables = [];
   const pathVariables = [];
 
@@ -33,6 +41,7 @@ function parseRoute({ host = '.*', path = '.*', method = ['.*'], handler, handle
     method: methodRegex,
     handler,
     handlerName,
+    headers,
     data,
   };
 }

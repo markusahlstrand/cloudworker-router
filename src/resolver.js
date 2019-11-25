@@ -14,6 +14,18 @@ function getParams(req, route) {
   return params;
 }
 
+function testHeaders(route, request) {
+  let result = true;
+
+  Object.keys(route.headers).forEach((key) => {
+    if (request.headers[key] !== route.headers[key]) {
+      result = false;
+    }
+  });
+
+  return result;
+}
+
 /**
  * Checks if the route is valid for a request
  * @param {route} route
@@ -27,7 +39,9 @@ function testPath(route, request) {
     route.method.test(request.method) &&
     // eslint-disable-next-line operator-linebreak
     route.host.test(request.host) &&
-    route.path.test(request.path)
+    // eslint-disable-next-line operator-linebreak
+    route.path.test(request.path) &&
+    testHeaders(route, request)
   );
 }
 

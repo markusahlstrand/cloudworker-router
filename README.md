@@ -4,7 +4,7 @@ A small (3,36KB) koajs-router-style router for cloudflare workers.
 
 - Express style routing with router.get, router.post ..
 - Named URL paramters
-- Route based on host headers
+- Route based on hosts and headers,
 - Multiple route middlewares
 - ES7 async/await support
 
@@ -79,6 +79,21 @@ router.add({
 }, async (ctx) => {
     ctx.status = 200;
     ctx.body = ctx.params.sub; // Will contain the subdomain from the request
+});
+```
+
+As Cloudflare adds country codes to the request headers it's possible to route the request based on geo or any other header passed by the client:
+
+```
+router.add({
+    path: '/hello',
+    method: ['GET'],
+    headers: {
+      'cf-ipcountry': 'SE'
+    }
+}, async (ctx) => {
+    ctx.status = 200;
+    ctx.body = 'Hello Sweden!!';
 });
 ```
 
