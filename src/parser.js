@@ -55,6 +55,32 @@ function instanceToJson(instance) {
   }, {});
 }
 
+async function streamToString(readable, maxSize = 1024 * 1024) {
+  const results = [];
+  const reader = readable.getReader();
+  // eslint-disable-next-line no-undef
+  const textDecoder = new TextDecoder();
+  let bytesCount = 0;
+
+  while (maxSize && bytesCount < maxSize) {
+    // eslint-disable-next-line no-await-in-loop
+    const { done, value } = await reader.read();
+
+    if (done) {
+      break;
+    }
+
+    bytesCount += value.byteLength;
+    results.push(textDecoder.decode(value));
+  }
+
+  const result = results.join('');
+  if (maxSize) {
+    return result.substring(0, maxSize);
+  }
+  return result;
+}
+
 function parseRequest(request) {
   const url = new URL(request.url);
 
@@ -66,10 +92,11 @@ function parseRequest(request) {
   }
 
   return {
+    body: request.body,
     headers,
-    href: url.href,
     host: url.host,
     hostname: url.hostname,
+    href: url.href,
     method: request.method,
     origin: `${url.protocol}//${url.host}`,
     path: url.pathname,
@@ -77,6 +104,7 @@ function parseRequest(request) {
     query,
     querystring: url.search.slice(1),
     search: url.search,
+    text: async (maxSize) => streamToString(request.body, maxSize),
   };
 }
 module.exports = {
