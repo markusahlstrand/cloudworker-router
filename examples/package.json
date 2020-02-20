@@ -5,15 +5,16 @@
   "main": "index.js",
   "scripts": {
     "start": "node local.js",
-    "build": "webpack --mode production --config ./webpack.config.js"
+    "build": "webpack --mode production --config ./webpack.config.js",
+    "deploy": "serverless deploy"
   },
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "serverless": "1.50.0",
+    "serverless": "1.64.0",
     "serverless-cloudflare-workers": "1.2.0",
-    "serverless-dotenv-plugin": "2.1.1",
-    "serverless-scriptable-plugin": "1.0.2",
-    "webpack-cli": "3.3.7"
+    "serverless-dotenv-plugin": "2.3.2",
+    "serverless-scriptable-plugin": "1.0.5",
+    "webpack-cli": "3.3.11"
   }
 }

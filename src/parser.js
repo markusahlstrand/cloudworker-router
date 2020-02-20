@@ -97,6 +97,7 @@ function parseRequest(request) {
     host: url.host,
     hostname: url.hostname,
     href: url.href,
+    json: async (maxSize) => JSON.parse(streamToString(request.body, maxSize)),
     method: request.method,
     origin: `${url.protocol}//${url.host}`,
     path: url.pathname,
@@ -104,7 +105,13 @@ function parseRequest(request) {
     query,
     querystring: url.search.slice(1),
     search: url.search,
-    text: async (maxSize) => streamToString(request.body, maxSize),
+    text: async (maxSize) => {
+      const bodyText = await streamToString(request.body, maxSize);
+      if (request.headers.get('content-type') === 'application/x-www-form-urlencoded') {
+        return decodeURIComponent(bodyText);
+      }
+      return bodyText;
+    },
   };
 }
 module.exports = {

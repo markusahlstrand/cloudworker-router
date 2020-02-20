@@ -1,13 +1,13 @@
 # serverless.yml
 service:
-    name: proxy
+  name: proxy
 
 provider:
   name: cloudflare
   environment:
   config:
     accountId: ${env:CLOUDFLARE_ACCOUNT_ID}
-    zoneId: ${env:CLOUDFLARE_ZONE_ID}    
+    zoneId: ${env:CLOUDFLARE_ZONE_ID}
 
 plugins:
   - serverless-dotenv-plugin
@@ -29,5 +29,5 @@ functions:
     webpack: false
     events:
       - http:
-          url: 'router.ahlstrand.es/*'
+          url: 'router.cloudproxy.io/*'
           method: ANY
