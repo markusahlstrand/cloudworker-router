@@ -269,6 +269,56 @@ describe('router', () => {
     });
   });
 
+  describe('router protocol matching', () => {
+    it('should match on protocol', async () => {
+      const router = new Router();
+      router.add(
+        {
+          protocol: 'http',
+        },
+        async (ctx) => {
+          ctx.body = 'test';
+          ctx.status = 200;
+        },
+      );
+
+      const response = await router.resolve({
+        request: {
+          url: 'http://foo.example.com',
+          method: constants.methods.GET,
+          protocol: 'http',
+          headers: new Map(),
+        },
+      });
+
+      expect(response.status).to.equal(200);
+    });
+
+    it('should not match on non-matching protocol', async () => {
+      const router = new Router();
+      router.add(
+        {
+          protocol: 'https',
+        },
+        async (ctx) => {
+          ctx.body = 'test';
+          ctx.status = 200;
+        },
+      );
+
+      const response = await router.resolve({
+        request: {
+          url: 'http://foo.example.com',
+          method: constants.methods.GET,
+          protocol: 'http',
+          headers: new Map(),
+        },
+      });
+
+      expect(response.status).to.equal(404);
+    });
+  });
+
   describe('Rule order', () => {
     it('should route fallback to the second route if the first does not match', async () => {
       const router = new Router();

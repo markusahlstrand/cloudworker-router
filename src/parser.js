@@ -3,6 +3,7 @@ function parseRoute({
   path = '.*',
   method = ['.*'],
   handler,
+  protocol = '.*',
   handlerName,
   headers = {},
   data,
@@ -32,6 +33,7 @@ function parseRoute({
   const hostRegex = new RegExp(`^${hostRegexpString}$`, 'i');
   const pathRegex = new RegExp(`^${pathRegexpString}$`, 'i');
   const methodRegex = new RegExp(`^${method.join('|')}$`, 'i');
+  const protocolRegex = new RegExp(`^${protocol}$`, 'i');
 
   return {
     hostVariables,
@@ -39,6 +41,7 @@ function parseRoute({
     host: hostRegex,
     path: pathRegex,
     method: methodRegex,
+    protocol: protocolRegex,
     handler,
     handlerName,
     headers,

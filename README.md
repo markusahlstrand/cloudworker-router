@@ -4,7 +4,7 @@ A small (3,36KB) koajs-router-style router for cloudflare workers.
 
 - Express style routing with router.get, router.post ..
 - Named URL paramters
-- Route based on hosts and headers,
+- Route based on hosts, path, headers and protocol
 - Multiple route middlewares
 - ES7 async/await support
 
@@ -195,6 +195,8 @@ An example of a context object created for a request:
 ```
 
 The name all invoced handlers is stored in an array in the state for debugging purposes.
+
+The context provides the async methods text() and json() that can read the body either as a string or as a json document.
 
 ## Cloudflare specifics
 
