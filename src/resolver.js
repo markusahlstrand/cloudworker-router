@@ -26,6 +26,10 @@ function testHeaders(route, request) {
   return result;
 }
 
+function testProtocol(route, request) {
+  return route.protocol.test(request.protocol);
+}
+
 /**
  * Checks if the route is valid for a request
  * @param {route} route
@@ -41,7 +45,9 @@ function testPath(route, request) {
     route.host.test(request.host) &&
     // eslint-disable-next-line operator-linebreak
     route.path.test(request.path) &&
-    testHeaders(route, request)
+    // eslint-disable-next-line operator-linebreak
+    testHeaders(route, request) &&
+    testProtocol(route, request)
   );
 }
 
