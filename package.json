@@ -1,9 +1,10 @@
 {
   "name": "cloudworker-router",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "description": "A router for cloudflare workers",
   "main": "src/index.js",
   "scripts": {
+    "examples": "node examples/local.js",
     "test": "npm run mocha & npm run lint",
     "mocha": "mocha test/**/*.js -require test/bootstrap.js",
     "lint": "eslint src",
