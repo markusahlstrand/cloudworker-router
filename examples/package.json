@@ -1,6 +1,6 @@
 {
   "name": "cloudworker-router-examples",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A example of how to use and deploy the cloudworker-router",
   "main": "index.js",
   "scripts": {
@@ -13,7 +13,7 @@
   "devDependencies": {
     "serverless": "1.67.3",
     "serverless-cloudflare-workers": "1.2.0",
-    "serverless-dotenv-plugin": "2.3.2",
+    "serverless-dotenv-plugin": "2.4.2",
     "serverless-scriptable-plugin": "1.0.5",
     "webpack-cli": "3.3.11"
   }

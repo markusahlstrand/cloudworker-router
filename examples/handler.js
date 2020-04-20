@@ -46,6 +46,17 @@ router.get('/wildcard/:file*', async (ctx) => {
   ctx.status = 200;
 });
 
+router.post('/hello', async (ctx) => {
+  try {
+    const body = await ctx.request.json();
+    ctx.body = JSON.stringify(body);
+    ctx.status = 200;
+  } catch (error) {
+    console.log(error.message);
+    ctx.status = 400;
+  }
+});
+
 router.get('/event', async (ctx) => {
   ctx.body = JSON.stringify(ctx.event);
   ctx.status = 200;

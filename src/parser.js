@@ -100,7 +100,7 @@ function parseRequest(request) {
     host: url.host,
     hostname: url.hostname,
     href: url.href,
-    json: async (maxSize) => JSON.parse(streamToString(request.body, maxSize)),
+    json: async (maxSize) => JSON.parse(await streamToString(request.body, maxSize)),
     method: request.method,
     origin: `${url.protocol}//${url.host}`,
     path: url.pathname,
