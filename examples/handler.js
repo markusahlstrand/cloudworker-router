@@ -1,6 +1,15 @@
 const Router = require('../src');
 
 const router = new Router();
+
+async function wait() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve('done');
+    }, 100);
+  });
+}
+
 router.get('/', async (ctx) => {
   ctx.body = 'Hello world!';
   ctx.status = 200;
@@ -43,6 +52,11 @@ router.get('/query', async (ctx) => {
 
 router.get('/wildcard/:file*', async (ctx) => {
   ctx.body = ctx.params.file;
+  ctx.status = 200;
+});
+
+router.get('/wait', async (ctx) => {
+  ctx.body = await wait();
   ctx.status = 200;
 });
 

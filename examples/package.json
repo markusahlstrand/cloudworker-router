@@ -1,6 +1,6 @@
 {
   "name": "cloudworker-router-examples",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "A example of how to use and deploy the cloudworker-router",
   "main": "index.js",
   "scripts": {
