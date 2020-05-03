@@ -47,7 +47,9 @@ function testPath(route, request) {
     route.path.test(request.path) &&
     // eslint-disable-next-line operator-linebreak
     testHeaders(route, request) &&
-    testProtocol(route, request)
+    // eslint-disable-next-line operator-linebreak
+    testProtocol(route, request) &&
+    (!route.excludePath || !route.excludePath.test(request.path))
   );
 }
 

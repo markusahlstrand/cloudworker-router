@@ -1,6 +1,7 @@
 function parseRoute({
   host = '.*',
   path = '.*',
+  excludePath = null,
   method = ['.*'],
   handler,
   protocol = '.*',
@@ -32,6 +33,7 @@ function parseRoute({
 
   const hostRegex = new RegExp(`^${hostRegexpString}$`, 'i');
   const pathRegex = new RegExp(`^${pathRegexpString}$`, 'i');
+  const excludePathRegex = excludePath ? new RegExp(`^${excludePath}$`, 'i') : null;
   const methodRegex = new RegExp(`^${method.join('|')}$`, 'i');
   const protocolRegex = new RegExp(`^${protocol}$`, 'i');
 
@@ -40,6 +42,7 @@ function parseRoute({
     pathVariables,
     host: hostRegex,
     path: pathRegex,
+    excludePath: excludePathRegex,
     method: methodRegex,
     protocol: protocolRegex,
     handler,

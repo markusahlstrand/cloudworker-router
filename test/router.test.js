@@ -208,6 +208,40 @@ describe('router', () => {
     });
   });
 
+  describe('router exclude matching', () => {
+    it('should not match on a excluded path', async () => {
+      const router = new Router();
+      router.add(
+        {
+          path: '/.*',
+          excludePath: '/public',
+          method: ['GET'],
+        },
+        async (ctx) => {
+          ctx.status = 403;
+          ctx.body = 'Forbidden...`';
+        },
+      );
+
+      router.get('/.*', async (ctx) => {
+        ctx.body = 'test';
+        ctx.status = 200;
+      });
+
+      const response = await router.resolve({
+        request: {
+          url: 'http://localhost:3000/public',
+          method: constants.methods.GET,
+          headers: new Map(),
+        },
+      });
+
+      const body = await responseUtils.getBodyText(response.body);
+
+      expect(body).to.equal('test');
+    });
+  });
+
   describe('router host matching', () => {
     it('should match on multiple hosts', async () => {
       const router = new Router();

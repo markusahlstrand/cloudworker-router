@@ -68,11 +68,12 @@ module.exports = class Router {
    * @param {*} param0
    * @param {*} handler
    */
-  add({ host, path, method, handlerName, headers, protocol }, handler) {
+  add({ host, path, excludePath, method, handlerName, headers, protocol }, handler) {
     const route = parser.parseRoute({
       method,
       host,
       path,
+      excludePath,
       handler,
       headers,
       handlerName,

@@ -61,7 +61,8 @@ For routing on other properties than the method or the path the routes can be ad
 ```
 router.add({
     host: 'test.example.com', // Defaults to .*
-    path: '/hello', Defaults to .*
+    path: '/hello', // Defaults to .*
+    protocol: 'http', // Defaults to .*
     method: ['GET', 'HEAD'], // Defaults to ['GET']
 }, async (ctx) => {
     ctx.status = 200;
@@ -94,6 +95,21 @@ router.add({
 }, async (ctx) => {
     ctx.status = 200;
     ctx.body = 'Hello Sweden!!';
+});
+```
+
+### Excluding paths
+
+It's possible to excluding certain paths from the path matching by specifying the exceptPath property of a route. This can for instance be useful if a authentication middleware shouldn't be executed for a webhook.
+
+```
+router.add({
+    path: '/.*',
+    excludePath: '/public',
+    method: ['GET'],
+}, async (ctx) => {
+    ctx.status = 403;
+    ctx.body = 'Forbidden...`';
 });
 ```
 
