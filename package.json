@@ -1,6 +1,6 @@
 {
   "name": "cloudworker-router",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "description": "A router for cloudflare workers",
   "main": "src/index.js",
   "scripts": {
