@@ -4,7 +4,7 @@ A small (3,36KB) koajs-router-style router for cloudflare workers.
 
 - Express style routing with router.get, router.post ..
 - Named URL paramters
-- Route based on hosts, path, headers and protocol
+- Route based on hosts, path, extension, headers and protocol
 - Multiple route middlewares
 - ES7 async/await support
 
