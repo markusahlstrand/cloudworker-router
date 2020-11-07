@@ -97,13 +97,27 @@ function parseRequest(request) {
     url.hostname = headers.host;
   }
 
+  let bodyText;
+  let requestedBodyLength;
+
+  async function getBodyText(maxSize) {
+    if (requestedBodyLength >= maxSize) {
+      return bodyText.substring(0, maxSize);
+    }
+
+    const clonedRequest = request.clone();
+    bodyText = await streamToString(clonedRequest.body, maxSize);
+
+    return bodyText;
+  }
+
   return {
     body: request.body,
     headers,
     host: url.host,
     hostname: url.hostname,
     href: url.href,
-    json: async (maxSize) => JSON.parse(await streamToString(request.body, maxSize)),
+    json: async (maxSize) => JSON.parse(getBodyText(maxSize)),
     method: request.method,
     origin: `${url.protocol}//${url.host}`,
     path: url.pathname,
@@ -112,11 +126,10 @@ function parseRequest(request) {
     querystring: url.search.slice(1),
     search: url.search,
     text: async (maxSize) => {
-      const bodyText = await streamToString(request.body, maxSize);
       if (request.headers.get('content-type') === 'application/x-www-form-urlencoded') {
-        return decodeURIComponent(bodyText);
+        return decodeURIComponent(await getBodyText(maxSize));
       }
-      return bodyText;
+      return getBodyText(maxSize);
     },
   };
 }

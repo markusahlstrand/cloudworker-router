@@ -10,9 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "cloudworker-router": "1.10.0"
+    "cloudworker-router": "1.11.1"
   },
   "devDependencies": {
-    "webpack": "4.43.0"
+    "webpack": "5.4.0"
   }
 }
