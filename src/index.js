@@ -18,6 +18,16 @@ module.exports = class Router {
     this.routes.push(route);
   }
 
+  options(path, handler) {
+    const route = parser.parseRoute({
+      method: [constants.methods.OPTIONS],
+      path,
+      handler,
+    });
+
+    this.routes.push(route);
+  }
+
   post(path, handler) {
     const route = parser.parseRoute({
       method: [constants.methods.POST],
@@ -46,6 +56,24 @@ module.exports = class Router {
     });
 
     this.routes.push(route);
+  }
+
+  allowMethods() {
+    this.options('.*', (ctx) => {
+      const matchingRoutes = resolver
+        .matchRoutePaths(ctx.request, this.routes)
+        .filter((route) => !route.middleware);
+
+      const headers = {};
+      matchingRoutes.forEach((route) => {
+        route.method.forEach((method) => {
+          headers[method] = true;
+        });
+      });
+
+      ctx.status = 204;
+      ctx.set('Access-Control-Allow-Method', Object.keys(headers).join(', '));
+    });
   }
 
   /**

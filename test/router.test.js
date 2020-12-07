@@ -47,6 +47,45 @@ describe('router', () => {
     });
   });
 
+  describe('router.options', () => {
+    it('should route a OPTIONS request to a test route', async () => {
+      const router = new Router();
+
+      router.options('/', async (ctx) => {
+        ctx.status = 204;
+      });
+
+      const response = await router.resolve({
+        request: new Request('http://localhost:3000/', {
+          method: constants.methods.OPTIONS,
+        }),
+      });
+
+      expect(response.status).to.equal(204);
+    });
+  });
+
+  describe('router.allowMethods', () => {
+    it('should respond with Access-Control-Allow-Methods for OPTIONS requests', async () => {
+      const router = new Router();
+
+      router.get('/', async (ctx) => {
+        ctx.status = 200;
+      });
+
+      router.allowMethods();
+
+      const response = await router.resolve({
+        request: new Request('http://localhost:3000/', {
+          method: constants.methods.OPTIONS,
+        }),
+      });
+
+      expect(response.status).to.equal(204);
+      expect(response.headers.get('Access-Control-Allow-Method')).to.equal('GET, HEAD, OPTIONS');
+    });
+  });
+
   describe('router.post', () => {
     it('should route a POST request to a test route', async () => {
       const router = new Router();

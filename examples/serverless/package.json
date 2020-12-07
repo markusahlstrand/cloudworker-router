@@ -11,7 +11,7 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "serverless": "2.11.0",
+    "serverless": "2.15.0",
     "serverless-cloudflare-workers": "1.2.0",
     "serverless-dotenv-plugin": "3.1.0",
     "serverless-scriptable-plugin": "1.0.5",

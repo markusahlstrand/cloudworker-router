@@ -6,6 +6,7 @@ A small (3,36KB) koajs-router-style router for cloudflare workers.
 - Named URL paramters
 - Route based on hosts, path, extension, headers and protocol
 - Multiple route middlewares
+- Responds to OPTIONS requests with allowed methods
 - ES7 async/await support
 
 ## Installation
@@ -215,6 +216,22 @@ An example of a context object created for a request:
 The name all invoced handlers is stored in an array in the state for debugging purposes.
 
 The context provides the async methods text() and json() that can read the body either as a string or as a json document.
+
+### Allow headers
+
+The router can match OPTIONS request against the registered routes to respond with the correct allowed headers.
+
+To enable handling of OPTIONS requests call allowHeaders after all other routes:
+
+```
+  const router = new Router();
+
+  router.get('/', async (ctx) => {
+    ctx.status = 200;
+  });
+
+  router.allowMethods();
+```
 
 ## Cloudflare specifics
 
