@@ -1,12 +1,12 @@
 function getParams(req, route) {
   const params = {};
 
-  const hostParamsMatch = route.host.exec(req.host);
+  const hostParamsMatch = route.hostRegex.exec(req.host);
   route.hostVariables.forEach((name, index) => {
     params[name] = hostParamsMatch[index + 1];
   });
 
-  const pathParamsMatch = route.path.exec(req.path);
+  const pathParamsMatch = route.pathRegex.exec(req.path);
   route.pathVariables.forEach((name, index) => {
     params[name] = pathParamsMatch[index + 1];
   });
@@ -27,7 +27,7 @@ function testHeaders(route, request) {
 }
 
 function testProtocol(route, request) {
-  return route.protocol.test(request.protocol);
+  return route.protocolRegex.test(request.protocol);
 }
 
 /**
@@ -40,16 +40,22 @@ function testPath(route, request) {
   return (
     // Stupid prettier rules..
     // eslint-disable-next-line operator-linebreak
-    route.method.test(request.method) &&
+    route.methodRegex.test(request.method) &&
     // eslint-disable-next-line operator-linebreak
-    route.host.test(request.host) &&
+    route.hostRegex.test(request.host) &&
     // eslint-disable-next-line operator-linebreak
-    route.path.test(request.path) &&
+    route.pathRegex.test(request.path) &&
     // eslint-disable-next-line operator-linebreak
     testHeaders(route, request) &&
     // eslint-disable-next-line operator-linebreak
     testProtocol(route, request) &&
-    (!route.excludePath || !route.excludePath.test(request.path))
+    (!route.excludePath || !route.excludePathRegex.test(request.path))
+  );
+}
+
+function matchRoutePaths(request, routes) {
+  return routes.filter(
+    (route) => route.hostRegex.test(request.host) && route.pathRegex.test(request.path),
   );
 }
 
@@ -80,5 +86,6 @@ async function recurseRoutes(ctx, routes) {
 }
 
 module.exports = {
+  matchRoutePaths,
   recurseRoutes,
 };
