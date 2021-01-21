@@ -1,15 +1,17 @@
 {
   "name": "cloudworker-router",
-  "version": "1.12.1",
+  "version": "1.12.2",
   "description": "A router for cloudflare workers",
   "main": "src/index.js",
+  "files": [
+    "src/**/*.js"
+  ],
   "scripts": {
     "examples": "node examples/local.js",
     "test": "npm run mocha & npm run lint",
     "mocha": "mocha test/**/*.js -require test/bootstrap.js",
     "lint": "eslint src",
-    "build": "webpack --mode production --config ./webpack.config.js",
-    "package": "rm -rf node_modules && rm -rf examples/node_modules && npm install --prod"
+    "build": "webpack --mode production --config ./webpack.config.js"
   },
   "repository": {
     "type": "git",
