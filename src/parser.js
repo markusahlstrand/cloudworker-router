@@ -131,9 +131,6 @@ function parseRequest(request) {
     querystring: url.search.slice(1),
     search: url.search,
     text: async (maxSize) => {
-      if (request.headers.get('content-type') === 'application/x-www-form-urlencoded') {
-        return decodeURIComponent(await getBodyText(maxSize));
-      }
       return getBodyText(maxSize);
     },
   };
