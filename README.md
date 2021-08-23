@@ -21,7 +21,7 @@ The idea is to make the router work as closely to the koajs-router as possible, 
 
 Basic example with GET request
 
-```
+```js
 const Router = require('cloudworker-router');
 
 const router = new Router();
@@ -46,7 +46,7 @@ The paths are translated to regular expressions for matching. Query strings are 
 
 Named router paramteres are captured and added to `ctx.params` :
 
-```
+```js
 router.get('/hello/:name', async (ctx) => {
     ctx.status = 200
     ctx.body = 'Hello ' + ctx.params.name;
