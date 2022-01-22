@@ -11,7 +11,7 @@ A small (3,36KB) koajs-router-style router for cloudflare workers.
 
 ## Installation
 
-```
+```bash
 npm install cloudworker-router --save
 ```
 
@@ -21,7 +21,7 @@ The idea is to make the router work as closely to the koajs-router as possible, 
 
 Basic example with GET request
 
-```
+```js
 const Router = require('cloudworker-router');
 
 const router = new Router();
@@ -46,7 +46,7 @@ The paths are translated to regular expressions for matching. Query strings are 
 
 Named router paramteres are captured and added to `ctx.params` :
 
-```
+```js
 router.get('/hello/:name', async (ctx) => {
     ctx.status = 200
     ctx.body = 'Hello ' + ctx.params.name;
@@ -61,7 +61,7 @@ router.get('/:wildcard*', async (ctx) => {
 
 For routing on other properties than the method or the path the routes can be added using the router.add function:
 
-```
+```js
 router.add({
     host: 'test.example.com', // Defaults to .*
     path: '/hello', // Defaults to .*
@@ -75,7 +75,7 @@ router.add({
 
 Named parameters can be added to the host property as well and are the values are also added to ctx.params:
 
-```
+```js
 router.add({
     host: ':sub.example.com',
     path: '/hello',
@@ -88,7 +88,7 @@ router.add({
 
 As Cloudflare adds country codes to the request headers it's possible to route the request based on geo or any other header passed by the client:
 
-```
+```js
 router.add({
     path: '/hello',
     method: ['GET'],
@@ -105,7 +105,7 @@ router.add({
 
 It's possible to excluding certain paths from the path matching by specifying the exceptPath property of a route. This can for instance be useful if a authentication middleware shouldn't be executed for a webhook.
 
-```
+```js
 router.add({
     path: '/.*',
     excludePath: '/public',
@@ -124,7 +124,7 @@ A new context instance are created for each request.
 
 An example of a context object created for a request:
 
-```
+```js
 {
   request: {
     headers: {
@@ -223,7 +223,7 @@ The router can match OPTIONS request against the registered routes to respond wi
 
 To enable handling of OPTIONS requests call allowHeaders after all other routes:
 
-```
+```js
   const router = new Router();
 
   router.get('/', async (ctx) => {
