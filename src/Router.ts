@@ -5,7 +5,8 @@ import { Context } from './types/Context';
 type Handler = (ctx: Context) => Promise<Response>;
 
 export class Router extends TinyRequestRouter<Handler> {
-  async handle(request: Request): Promise<Response> {
+  async handle(event: FetchEvent): Promise<Response> {
+    const { request } = event;
     const { pathname, searchParams } = new URL(request.url);
     const match = this.match(request.method as Method, pathname);
     if (match) {
@@ -13,6 +14,9 @@ export class Router extends TinyRequestRouter<Handler> {
         request,
         params: match.params,
         query: searchParams,
+        headers: request.headers,
+        state: {},
+        waitUntil: event.waitUntil,
       };
 
       // Call the async function of that match
