@@ -1,10 +1,13 @@
-# Cloudworker Router
+# Cloudworker Router V2
 
-A small (3,36KB) koajs-router-style router for cloudflare workers.
+This is a rewrite of the router wrapping the [tiny-request-router](https://www.npmjs.com/package/tiny-request-router) that does the heavy lifting.
+
+The router is based on [path-to-regexp](https://github.com/pillarjs/path-to-regexp) for the path matching, which is used by many other routers as well.
+
+The goal is to make a battery included, opinionated typescript router for cloudflare workers.
 
 - Express style routing with router.get, router.post ..
 - Named URL paramters
-- Route based on hosts, path, extension, headers and protocol
 - Multiple route middlewares
 - Responds to OPTIONS requests with allowed methods
 - ES7 async/await support
@@ -17,6 +20,8 @@ npm install cloudworker-router --save
 
 ## Basic Usage
 
+NOTE: This section is outdated
+
 The idea is to make the router work as closely to the koajs-router as possible, partly because it's a tried and tested module but also to make the learning curve as flat as possible.
 
 Basic example with GET request
@@ -27,13 +32,13 @@ const Router = require('cloudworker-router');
 const router = new Router();
 
 router.get('/', async (ctx) => {
-    ctx.body = 'Hello World';
-    ctx.status = 200;
+  ctx.body = 'Hello World';
+  ctx.status = 200;
 });
 
-addEventListener('fetch', event => {
+addEventListener('fetch', (event) => {
   event.respondWith(router.resolve(event));
-})
+});
 ```
 
 The router exposes get, post, patch and del methods as shorthands for the most common use cases. For examples of their usage, see the example folder. HEAD requests are handled automatically by the router.
@@ -48,57 +53,65 @@ Named router paramteres are captured and added to `ctx.params` :
 
 ```js
 router.get('/hello/:name', async (ctx) => {
-    ctx.status = 200
-    ctx.body = 'Hello ' + ctx.params.name;
+  ctx.status = 200;
+  ctx.body = 'Hello ' + ctx.params.name;
 });
 
 router.get('/:wildcard*', async (ctx) => {
-    ctx.status = 200;
-    ctx.body = ctx.params.wildcard; // Will return the whole path
+  ctx.status = 200;
+  ctx.body = ctx.params.wildcard; // Will return the whole path
 });
-
 ```
 
 For routing on other properties than the method or the path the routes can be added using the router.add function:
 
 ```js
-router.add({
+router.add(
+  {
     host: 'test.example.com', // Defaults to .*
     path: '/hello', // Defaults to .*
     protocol: 'http', // Defaults to .*
     method: ['GET', 'HEAD'], // Defaults to ['GET']
-}, async (ctx) => {
+  },
+  async (ctx) => {
     ctx.status = 200;
     ctx.body = 'Hello world';
-});
+  },
+);
 ```
 
 Named parameters can be added to the host property as well and are the values are also added to ctx.params:
 
 ```js
-router.add({
+router.add(
+  {
     host: ':sub.example.com',
     path: '/hello',
     method: ['GET', 'HEAD'],
-}, async (ctx) => {
+  },
+  async (ctx) => {
     ctx.status = 200;
     ctx.body = ctx.params.sub; // Will contain the subdomain from the request
-});
+  },
+);
 ```
 
 As Cloudflare adds country codes to the request headers it's possible to route the request based on geo or any other header passed by the client:
 
 ```js
-router.add({
+router.add(
+  {
     path: '/hello',
     method: ['GET'],
     headers: {
-      'cf-ipcountry': 'SE'
-    }
-}, async (ctx) => {
+      'cf-ipcountry': 'SE',
+    },
+  },
+  async (ctx) => {
     ctx.status = 200;
     ctx.body = 'Hello Sweden!!';
-});
+  },
+);
 ```
 
 ### Excluding paths
@@ -106,14 +119,17 @@ router.add({
 It's possible to excluding certain paths from the path matching by specifying the exceptPath property of a route. This can for instance be useful if a authentication middleware shouldn't be executed for a webhook.
 
 ```js
-router.add({
+router.add(
+  {
     path: '/.*',
     excludePath: '/public',
     method: ['GET'],
-}, async (ctx) => {
+  },
+  async (ctx) => {
     ctx.status = 403;
     ctx.body = 'Forbidden...`';
-});
+  },
+);
 ```
 
 ### Context
@@ -224,13 +240,13 @@ The router can match OPTIONS request against the registered routes to respond wi
 To enable handling of OPTIONS requests call allowHeaders after all other routes:
 
 ```js
-  const router = new Router();
+const router = new Router();
 
-  router.get('/', async (ctx) => {
-    ctx.status = 200;
-  });
+router.get('/', async (ctx) => {
+  ctx.status = 200;
+});
 
-  router.allowMethods();
+router.allowMethods();
 ```
 
 ## Cloudflare specifics
