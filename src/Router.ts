@@ -5,7 +5,7 @@ import { Context } from './types/Context';
 type Handler = (ctx: Context) => Promise<Response>;
 
 export class Router extends TinyRequestRouter<Handler> {
-  async handleRequest(request: Request): Promise<Response> {
+  async handle(request: Request): Promise<Response> {
     const { pathname, searchParams } = new URL(request.url);
     const match = this.match(request.method as Method, pathname);
     if (match) {

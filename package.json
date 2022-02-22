@@ -1,11 +1,11 @@
 {
   "name": "cloudworker-router",
-  "version": "2.0.0-beta.1",
+  "version": "2.0.0-beta.2",
   "description": "A router for cloudflare workers",  
   "files": [
     "dist/**/*"
   ],
-  "main": "dist/index.js",
+  "main": "dist/Router.js",
   "scripts": {
     "build": "tsc",
     "lint": "eslint src/**",
