@@ -121,37 +121,6 @@ export class Router {
   public options(path: string, handler: Handler, options: RouteOptions = {}) {
     return this._push('OPTIONS', path, handler, options);
   }
-  /**
-   * Match the provided method and path against the list of registered routes.
-   *
-   * @example
-   * router.get('/foobar', async () => new Response('Hello'))
-   *
-   * const match = router.match('GET', '/foobar')
-   * if (match) {
-   *   // Call the async function of that match
-   *   const response = await match.handler()
-   *   console.log(response) // => Response('Hello')
-   * }
-   */
-  public match(method: Method, path: string): RouteMatch<Handler> | null {
-    for (const route of this.routes) {
-      // Skip immediately if method doesn't match
-      if (route.method !== method && route.method !== 'ALL') continue;
-      // Speed optimizations for catch all wildcard routes
-      if (route.path === '(.*)') {
-        return { ...route, params: { '0': route.path } };
-      }
-      if (route.path === '/' && route.options.end === false) {
-        return { ...route, params: {} };
-      }
-      // If method matches try to match path regexp
-      const matches = route.regexp.exec(path);
-      if (!matches || !matches.length) continue;
-      return { ...route, matches, params: keysToParams(matches, route.keys) };
-    }
-    return null;
-  }
 
   public *matches(method: Method, path: string): IterableIterator<RouteMatch<Handler> | null> {
     for (const route of this.routes) {
@@ -179,17 +148,19 @@ export class Router {
     const matches = this.matches(request.method as Method, pathname);
     const callbacks: RouteCallback[] = [];
 
+    const ctx = {
+      request,
+      query: searchParams,
+      headers: request.headers,
+      params: {},
+      state: {},
+      waitUntil: event.waitUntil,
+    };
+
     for await (const match of matches) {
       if (match) {
-        const ctx = {
-          request,
-          params: match.params,
-          query: searchParams,
-          headers: request.headers,
-          state: {},
-          waitUntil: event.waitUntil,
-        };
-
+        // Update the params for the currenct match
+        ctx.params = match.params;
         // Call the async function of that match
         let result = await match.handler(ctx);
 
