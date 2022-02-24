@@ -75,13 +75,10 @@ export interface RouteMatch<Handler> extends Route<Handler> {
 export type Key = TokenKey;
 export type Keys = Array<Key>;
 /**
- * Tiny request router. Allows overloading of handler type to be fully type safe.
+ * Cloudworkder-router
  *
  * @example
- * import { Router, Method, Params } from 'tiny-request-router'
- *
- * // Let the router know that handlers are async functions returning a Response
- * type Handler = (params: Params) => Promise<Response>
+ * import { Router, Method, Params } from 'cloudworker-router'
  *
  * const router = new Router<Handler>()
  */
@@ -154,7 +151,7 @@ export class Router {
       headers: request.headers,
       params: {},
       state: {},
-      waitUntil: event.waitUntil,
+      event,
     };
 
     for await (const match of matches) {
