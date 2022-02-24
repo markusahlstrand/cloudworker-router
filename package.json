@@ -1,6 +1,6 @@
 {
   "name": "cloudworker-router",
-  "version": "2.0.0-beta.3",
+  "version": "2.0.0-beta.4",
   "description": "A router for cloudflare workers",  
   "files": [
     "dist/**/*"
@@ -57,7 +57,5 @@
     "ts-node": "^10.5.0",
     "typescript": "^4.5.5"
   },
-  "dependencies": {
-    "tiny-request-router": "^1.2.2"
-  }
+  "dependencies": {}
 }
