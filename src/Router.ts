@@ -4,15 +4,16 @@ import { Params } from './types/Params';
 
 // https://basarat.gitbooks.io/typescript/docs/tips/barrel.html
 export { pathToRegexp };
+export { Context };
 
 /** Valid HTTP methods for matching. */
 export type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS';
 export type MethodWildcard = 'ALL';
 
-// Let the router know that handlers are async functions returning a Response
-type Handler = (ctx: Context) => Promise<Response> | Promise<RouteCallback> | undefined;
+export type RouteCallback = (response: Response) => Promise<Response>;
 
-type RouteCallback = (response: Response) => Promise<Response>;
+// Let the router know that handlers are async functions returning a Response
+type Handler = (ctx: Context) => Promise<Response | RouteCallback | undefined>;
 
 /**
  * Optional route options.
