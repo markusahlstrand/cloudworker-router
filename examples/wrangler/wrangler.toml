@@ -1,7 +1,0 @@
-name = "wrangler-test"
-type = "webpack"
-account_id = ""
-workers_dev = true
-webpack_config = "webpack.config.js"
-route = ""
-zone_id = ""

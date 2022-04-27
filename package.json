@@ -1,17 +1,18 @@
 {
   "name": "cloudworker-router",
-  "version": "1.12.2",
+  "version": "2.0.0",
   "description": "A router for cloudflare workers",
-  "main": "src/index.js",
   "files": [
-    "src/**/*.js"
+    "dist/**/*"
   ],
+  "main": "dist/index.js",
   "scripts": {
-    "examples": "node examples/local.js",
-    "test": "npm run mocha & npm run lint",
-    "mocha": "mocha test/**/*.js -require test/bootstrap.js",
-    "lint": "eslint src",
-    "build": "webpack --mode production --config ./webpack.config.js"
+    "build": "tsc",
+    "lint": "eslint src/**",
+    "unit": "jest --config jestconfig.json --verbose",
+    "test": "yarn run unit && yarn run lint",
+    "prepare": "husky install; yarn build",
+    "semantic-release": "semantic-release"
   },
   "repository": {
     "type": "git",
@@ -28,15 +29,37 @@
     "url": "https://github.com/markusahlstrand/cloudworker-router/issues"
   },
   "homepage": "https://github.com/markusahlstrand/cloudworker-router#readme",
-  "dependencies": {},
   "devDependencies": {
-    "chai": "4.2.0",
-    "eslint": "7.18.0",
-    "eslint-config-airbnb-base": "14.2.1",
-    "eslint-plugin-import": "2.22.1",
-    "mocha": "8.2.1",
-    "node-cloudworker": "1.4.3",
-    "webpack": "5.16.0",
-    "webpack-cli": "4.4.0"
+    "@cloudflare/workers-types": "^3.5.1",
+    "@commitlint/cli": "^16.2.3",
+    "@commitlint/config-conventional": "^16.2.1",
+    "@commitlint/types": "^16.2.1",
+    "@jest/types": "^27.5.1",
+    "@semantic-release/git": "^10.0.1",
+    "@types/jest": "^27.4.1",
+    "@types/node": "^17.0.25",
+    "@types/service-worker-mock": "^2.0.1",
+    "@typescript-eslint/eslint-plugin": "^5.20.0",
+    "@typescript-eslint/parser": "^5.20.0",
+    "eslint": "^8.13.0",
+    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jsx-a11y": "^6.5.1",
+    "eslint-plugin-prettier": "^4.0.0",
+    "husky": "^7.0.4",
+    "jest": "^27.5.1",
+    "jest-environment-miniflare": "^2.4.0",
+    "prettier": "^2.6.2",
+    "semantic-release": "^19.0.2",
+    "service-worker-mock": "^2.0.5",
+    "source-map-support": "^0.5.21",
+    "ts-jest": "^27.1.4",
+    "ts-loader": "^9.2.8",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.3"
+  },
+  "dependencies": {
+    "path-to-regexp": "^6.2.0"
   }
 }
