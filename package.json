@@ -1,6 +1,6 @@
 {
   "name": "cloudworker-router",
-  "version": "2.0.0-beta.10",
+  "version": "2.0.0",
   "description": "A router for cloudflare workers",
   "files": [
     "dist/**/*"
@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint src/**",
-    "unit": "jest",
+    "unit": "jest --config jestconfig.json --verbose",
     "test": "yarn run unit && yarn run lint",
     "prepare": "husky install; yarn build",
     "semantic-release": "semantic-release"
@@ -30,32 +30,34 @@
   },
   "homepage": "https://github.com/markusahlstrand/cloudworker-router#readme",
   "devDependencies": {
-    "@cloudflare/workers-types": "^3.4.0",
-    "@commitlint/cli": "^16.2.1",
+    "@cloudflare/workers-types": "^3.5.1",
+    "@commitlint/cli": "^16.2.3",
     "@commitlint/config-conventional": "^16.2.1",
     "@commitlint/types": "^16.2.1",
     "@jest/types": "^27.5.1",
     "@semantic-release/git": "^10.0.1",
-    "@types/jest": "^27.4.0",
-    "@types/node": "^17.0.19",
+    "@types/jest": "^27.4.1",
+    "@types/node": "^17.0.25",
     "@types/service-worker-mock": "^2.0.1",
-    "@typescript-eslint/eslint-plugin": "^5.12.1",
-    "@typescript-eslint/parser": "^5.12.1",
-    "eslint": "^8.9.0",
-    "eslint-config-airbnb-typescript": "^16.1.0",
-    "eslint-config-prettier": "^8.4.0",
-    "eslint-plugin-import": "^2.25.4",
+    "@typescript-eslint/eslint-plugin": "^5.20.0",
+    "@typescript-eslint/parser": "^5.20.0",
+    "eslint": "^8.13.0",
+    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-jsx-a11y": "^6.5.1",
     "eslint-plugin-prettier": "^4.0.0",
     "husky": "^7.0.4",
     "jest": "^27.5.1",
-    "prettier": "^2.5.1",
+    "jest-environment-miniflare": "^2.4.0",
+    "prettier": "^2.6.2",
     "semantic-release": "^19.0.2",
+    "service-worker-mock": "^2.0.5",
     "source-map-support": "^0.5.21",
-    "ts-jest": "^27.1.3",
-    "ts-loader": "^9.2.6",
-    "ts-node": "^10.5.0",
-    "typescript": "^4.5.5"
+    "ts-jest": "^27.1.4",
+    "ts-loader": "^9.2.8",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.3"
   },
   "dependencies": {
     "path-to-regexp": "^6.2.0"

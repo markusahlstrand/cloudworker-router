@@ -1,6 +1,6 @@
 # Cloudworker Router V2
 
-This is a rewrite of the router wrapping the [tiny-request-router](https://www.npmjs.com/package/tiny-request-router) that does the heavy lifting.
+This is a rewrite of the v1 router based on the [tiny-request-router](https://www.npmjs.com/package/tiny-request-router) that does the heavy lifting.
 
 The router is based on [path-to-regexp](https://github.com/pillarjs/path-to-regexp) for the path matching, which is used by many other routers as well.
 
@@ -10,6 +10,7 @@ The goal is to make a battery included, opinionated typescript router for cloudf
 - Named URL paramters
 - Multiple route middlewares
 - Responds to OPTIONS requests with allowed methods
+- HEAD request served automagically
 - ES7 async/await support
 
 ## Installation
@@ -20,9 +21,7 @@ npm install cloudworker-router --save
 
 ## Basic Usage
 
-NOTE: This section is outdated
-
-The idea is to make the router work as closely to the koajs-router as possible, partly because it's a tried and tested module but also to make the learning curve as flat as possible.
+The router handlers simply returns Response objects for basic handlers.
 
 Basic example with GET request
 
@@ -32,8 +31,7 @@ const Router = require('cloudworker-router');
 const router = new Router();
 
 router.get('/', async (ctx) => {
-  ctx.body = 'Hello World';
-  ctx.status = 200;
+  return new Response('Hello World');
 });
 
 addEventListener('fetch', (event) => {
@@ -53,83 +51,12 @@ Named router paramteres are captured and added to `ctx.params` :
 
 ```js
 router.get('/hello/:name', async (ctx) => {
-  ctx.status = 200;
-  ctx.body = 'Hello ' + ctx.params.name;
+  return new Response('Hello ' + ctx.params.name);
 });
 
 router.get('/:wildcard*', async (ctx) => {
-  ctx.status = 200;
-  ctx.body = ctx.params.wildcard; // Will return the whole path
+  return new Response(ctx.params.wildcard; // Will return the whole path
 });
-```
-
-For routing on other properties than the method or the path the routes can be added using the router.add function:
-
-```js
-router.add(
-  {
-    host: 'test.example.com', // Defaults to .*
-    path: '/hello', // Defaults to .*
-    protocol: 'http', // Defaults to .*
-    method: ['GET', 'HEAD'], // Defaults to ['GET']
-  },
-  async (ctx) => {
-    ctx.status = 200;
-    ctx.body = 'Hello world';
-  },
-);
-```
-
-Named parameters can be added to the host property as well and are the values are also added to ctx.params:
-
-```js
-router.add(
-  {
-    host: ':sub.example.com',
-    path: '/hello',
-    method: ['GET', 'HEAD'],
-  },
-  async (ctx) => {
-    ctx.status = 200;
-    ctx.body = ctx.params.sub; // Will contain the subdomain from the request
-  },
-);
-```
-
-As Cloudflare adds country codes to the request headers it's possible to route the request based on geo or any other header passed by the client:
-
-```js
-router.add(
-  {
-    path: '/hello',
-    method: ['GET'],
-    headers: {
-      'cf-ipcountry': 'SE',
-    },
-  },
-  async (ctx) => {
-    ctx.status = 200;
-    ctx.body = 'Hello Sweden!!';
-  },
-);
-```
-
-### Excluding paths
-
-It's possible to excluding certain paths from the path matching by specifying the exceptPath property of a route. This can for instance be useful if a authentication middleware shouldn't be executed for a webhook.
-
-```js
-router.add(
-  {
-    path: '/.*',
-    excludePath: '/public',
-    method: ['GET'],
-  },
-  async (ctx) => {
-    ctx.status = 403;
-    ctx.body = 'Forbidden...`';
-  },
-);
 ```
 
 ### Context
@@ -142,96 +69,18 @@ An example of a context object created for a request:
 
 ```js
 {
-  request: {
-    headers: {
-      accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
-      accept-encoding: "gzip",
-      accept-language: "en-GB,en-US;q=0.9,en;q=0.8,es;q=0.7",
-      cf-connecting-ip: "88.0.193.153",
-      cf-ipcountry: "ES",
-      cf-ray: "50ac448ca95ed685",
-      cf-visitor: "{"scheme":"http"}",
-      connection: "Keep-Alive",
-      cookie: "__cfduid=dee52228d3848ca5abc16f5c6be4640981565603001",
-      host: "router.ahlstrand.es",
-      upgrade-insecure-requests: "1",
-      user-agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.87 Safari/537.36",
-      x-forwarded-proto: "http",
-      x-real-ip: "88.0.193.153"
-    },
-    href: "http://router.ahlstrand.es/ctx?foo=bar",
-    host: "router.ahlstrand.es",
-    hostname: "router.ahlstrand.es",
-    method: "GET",
-    origin: "http://router.ahlstrand.es",
-    path: "/ctx",
-    protocol: "http",
-    query: {
-      foo: "bar"
-    },
-    querystring: "foo=bar",
-    search: "?foo=bar
-  },
+  request: Request,
   event: {
-    request: {
-      cf: {
-        tlsVersion: "",
-        httpProtocol: "HTTP/1.1",
-        tlsCipher: "",
-        asn: 3352,
-        requestPriority: "",
-        clientTrustScore: 91,
-        country: "ES",
-        tlsClientAuth: {
-          certIssuerDNLegacy: "",
-          certIssuerDN: "",
-          certIssuerDNRFC2253: "",
-          certSubjectDNLegacy: "",
-          certVerified: "NONE",
-          certNotAfter: "",
-          certSubjectDN: "",
-          certFingerprintSHA1: "",
-          certNotBefore: "",
-          certSerial: "",
-          certPresented: "0",
-          certSubjectDNRFC2253: ""
-        },
-        colo: "MAD"
-      },
-      fetcher: {
-
-      },
-      redirect: "manual",
-      headers: {
-
-      },
-      url: "http://router.ahlstrand.es/ctx?foo=bar",
-      method: "GET",
-      bodyUsed: false,
-      body: null
-    },
+    request: Request,
     type: "fetch"
   },
-  state: {
-    handlers: []
-  },
-  response: {
-    headers: {
-
-    }
-  },
-  body: "",
-  status: 404,
+  state: {},
   query: {
     foo: "bar"
   },
   params: {}
 }
 ```
-
-The name all invoced handlers is stored in an array in the state for debugging purposes.
-
-The context provides the async methods text() and json() that can read the body either as a string or as a json document.
 
 ### Allow headers
 
@@ -246,7 +95,7 @@ router.get('/', async (ctx) => {
   ctx.status = 200;
 });
 
-router.allowMethods();
+router.use(router.allowMethods());
 ```
 
 ## Cloudflare specifics
