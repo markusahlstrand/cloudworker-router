@@ -10,16 +10,44 @@ export { Context };
 export type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS';
 export type MethodWildcard = 'ALL';
 
-export type RouteCallback = (response: Response) => Promise<Response>;
+export type RouteCallback = (response: Response, error: Error | null) => Promise<Response>;
 
 // Let the router know that handlers are async functions returning a Response
 type Handler = (ctx: Context) => Promise<Response | RouteCallback | undefined>;
+
+/**
+ * Optional route options.
+ *
+ * @example
+ * // When `true` the regexp will be case sensitive. (default: `false`)
+ * sensitive?: boolean;
+ *
+ * // When `true` the regexp allows an optional trailing delimiter to match. (default: `false`)
+ * strict?: boolean;
+ *
+ * // When `true` the regexp will match to the end of the string. (default: `true`)
+ * end?: boolean;
+ *
+ * // When `true` the regexp will match from the beginning of the string. (default: `true`)
+ * start?: boolean;
+ *
+ * // Sets the final character for non-ending optimistic matches. (default: `/`)
+ * delimiter?: string;
+ *
+ * // List of characters that can also be "end" characters.
+ * endsWith?: string;
+ *
+ * // Encode path tokens for use in the `RegExp`.
+ * encode?: (value: string) => string;
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface RouteOptions extends TokensToRegexpOptions {}
 
 export interface Route<Handler> {
   method: Method | MethodWildcard;
   path: string;
   regexp: RegExp;
-  options: TokensToRegexpOptions;
+  options: RouteOptions;
   keys: Keys;
   handler: Handler;
 }
@@ -61,47 +89,47 @@ export class Router {
   public routes: Array<Route<Handler>> = [];
 
   /** Add a route that matches any method. */
-  public all(path: string, handler: Handler, options: TokensToRegexpOptions = {}) {
+  public all(path: string, handler: Handler, options: RouteOptions = {}) {
     return this.push('ALL', path, handler, options);
   }
 
   /** Add a route that matches the GET method. */
-  public get(path: string, handler: Handler, options: TokensToRegexpOptions = {}) {
+  public get(path: string, handler: Handler, options: RouteOptions = {}) {
     return this.push('GET', path, handler, options).push('HEAD', path, handler, options);
   }
 
   /** Add a route that matches the POST method. */
-  public post(path: string, handler: Handler, options: TokensToRegexpOptions = {}) {
+  public post(path: string, handler: Handler, options: RouteOptions = {}) {
     return this.push('POST', path, handler, options);
   }
 
   /** Add a route that matches the PUT method. */
-  public put(path: string, handler: Handler, options: TokensToRegexpOptions = {}) {
+  public put(path: string, handler: Handler, options: RouteOptions = {}) {
     return this.push('PUT', path, handler, options);
   }
 
   /** Add a route that matches the PATCH method. */
-  public patch(path: string, handler: Handler, options: TokensToRegexpOptions = {}) {
+  public patch(path: string, handler: Handler, options: RouteOptions = {}) {
     return this.push('PATCH', path, handler, options);
   }
 
   /** Add a route that matches the DELETE method. */
-  public delete(path: string, handler: Handler, options: TokensToRegexpOptions = {}) {
+  public delete(path: string, handler: Handler, options: RouteOptions = {}) {
     return this.push('DELETE', path, handler, options);
   }
 
   /** Add a route that matches the HEAD method. */
-  public head(path: string, handler: Handler, options: TokensToRegexpOptions = {}) {
+  public head(path: string, handler: Handler, options: RouteOptions = {}) {
     return this.push('HEAD', path, handler, options);
   }
 
   /** Add a route that matches the OPTIONS method. */
-  public options(path: string, handler: Handler, options: TokensToRegexpOptions = {}) {
+  public options(path: string, handler: Handler, options: RouteOptions = {}) {
     return this.push('OPTIONS', path, handler, options);
   }
 
   /** Add a middlewares handler */
-  public use(handler: Handler, options: TokensToRegexpOptions = {}) {
+  public use(handler: Handler, options: RouteOptions = {}) {
     return this.push('ALL', '*', handler, options);
   }
 
@@ -176,12 +204,26 @@ export class Router {
       if (match) {
         // Update the params for the currenct match
         ctx.params = match.params;
+
+        let error: Error | null = null;
+        let result: Response | RouteCallback | undefined;
+
         // Call the async function of that match
-        let result = await match.handler(ctx);
+        try {
+          result = await match.handler(ctx);
+        } catch (err) {
+          error = err as Error;
+          // Set a default error response
+          result = new Response('Server Error', { status: 500 });
+        }
 
         if (result instanceof Response) {
           for await (const callback of callbacks) {
-            result = await callback(result);
+            try {
+              result = await callback(result, error);
+            } catch (err) {
+              error = err as Error;
+            }
           }
 
           // Remove the body for head requests
@@ -205,7 +247,7 @@ export class Router {
     method: Method | MethodWildcard,
     path: string,
     handler: Handler,
-    options: TokensToRegexpOptions,
+    options: RouteOptions,
   ) {
     const keys: Keys = [];
     if (path === '*') {

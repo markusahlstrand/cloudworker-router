@@ -59,6 +59,30 @@ router.get('/:wildcard*', async (ctx) => {
 });
 ```
 
+### Middlewares
+
+If a handler returns a function rather than a response it's considered a middlewares and will be triggered after the response as well. This makes it possible to make for instance request loggers and error handlers.
+
+```js
+router.use(async (ctx) => {
+  // Maybe store the request start timestamp
+  const start = new Date();
+
+  return async (response: Response, error: Error | null) {
+    // Log something?
+
+    if(error) {
+      // handle an error
+      return new Response(error.message, {
+        status: 500
+      })
+    }
+
+    return response;
+  }
+});
+```
+
 ### Context
 
 The context encapsulates the request and the response object.

@@ -70,3 +70,59 @@ describe('allow headers', () => {
     });
   });
 });
+
+describe('middlewares', () => {
+  beforeEach(() => {
+    Object.assign(global, makeServiceWorkerEnv());
+    jest.resetModules();
+  });
+
+  it('should rewrite response in middleware', async () => {
+    const router = new Router();
+
+    router.use(async (ctx) => {
+      return async (response: Response) => {
+        return new Response('middleware');
+      };
+    });
+
+    router.get('/', async (ctx) => {
+      return new Response('handler');
+    });
+
+    const request = new Request('/', { method: 'GET' });
+    const fetchEvent: FetchEvent = createEvent(request);
+
+    const response = await router.handle(fetchEvent);
+    const body = await response.text();
+
+    expect(body).toBe('middleware');
+  });
+
+  it('should handle errors in middleware', async () => {
+    const router = new Router();
+
+    router.use(async (ctx) => {
+      return async (response: Response | undefined, error: Error | null) => {
+        if (error) {
+          return new Response(error.message, { status: 500 });
+        }
+
+        return new Response('middleware');
+      };
+    });
+
+    router.get('/', async (ctx) => {
+      throw new Error('test');
+    });
+
+    const request = new Request('/', { method: 'GET' });
+    const fetchEvent: FetchEvent = createEvent(request);
+
+    const response = await router.handle(fetchEvent);
+    const body = await response.text();
+
+    expect(response.status).toBe(500);
+    expect(body).toBe('test');
+  });
+});
