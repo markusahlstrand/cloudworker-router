@@ -81,7 +81,7 @@ describe('middlewares', () => {
     const router = new Router();
 
     router.use(async (ctx) => {
-      return async (response: Response) => {
+      return async (response: Response | undefined) => {
         return new Response('middleware');
       };
     });
