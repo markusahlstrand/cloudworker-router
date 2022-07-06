@@ -10,5 +10,5 @@ export type Context = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   state: { [key: string]: any };
   // The raw event
-  event: FetchEvent & { env?: { [key: string]: string } };
+  event: FetchEvent & { env?: { [key: string]: string | DurableObjectNamespace | KVNamespace } };
 };
