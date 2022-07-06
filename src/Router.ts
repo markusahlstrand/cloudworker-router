@@ -184,7 +184,7 @@ export class Router {
     return null;
   }
 
-  public async handle(event: FetchEvent): Promise<Response> {
+  public async handle(event: FetchEvent & { env?: { [key: string]: string } }): Promise<Response> {
     const { request } = event;
     const { pathname, searchParams } = new URL(request.url);
     const matches = this.matches(request.method as Method, pathname);
