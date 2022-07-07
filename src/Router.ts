@@ -12,7 +12,7 @@ export type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPT
 export type MethodWildcard = 'ALL';
 
 // Let the router know that handlers are async functions returning a Response
-type Handler = (ctx: Context) => Promise<Response | RouteCallback | undefined>;
+type Handler<Env> = (ctx: Context<Env>) => Promise<Response | RouteCallback | undefined>;
 
 /**
  * Optional route options.
@@ -83,58 +83,58 @@ export type Keys = Array<Key>;
  *
  * const router = new Router<Handler>()
  */
-export class Router {
+export class Router<Env = { [key: string]: string | DurableObjectNamespace | KVNamespace }> {
   /** List of all registered routes. */
-  public routes: Array<Route<Handler>> = [];
+  public routes: Array<Route<Handler<Env>>> = [];
 
   /** Add a route that matches any method. */
-  public all(path: string, handler: Handler, options: RouteOptions = {}) {
+  public all(path: string, handler: Handler<Env>, options: RouteOptions = {}) {
     return this.push('ALL', path, handler, options);
   }
 
   /** Add a route that matches the GET method. */
-  public get(path: string, handler: Handler, options: RouteOptions = {}) {
+  public get(path: string, handler: Handler<Env>, options: RouteOptions = {}) {
     return this.push('GET', path, handler, options).push('HEAD', path, handler, options);
   }
 
   /** Add a route that matches the POST method. */
-  public post(path: string, handler: Handler, options: RouteOptions = {}) {
+  public post(path: string, handler: Handler<Env>, options: RouteOptions = {}) {
     return this.push('POST', path, handler, options);
   }
 
   /** Add a route that matches the PUT method. */
-  public put(path: string, handler: Handler, options: RouteOptions = {}) {
+  public put(path: string, handler: Handler<Env>, options: RouteOptions = {}) {
     return this.push('PUT', path, handler, options);
   }
 
   /** Add a route that matches the PATCH method. */
-  public patch(path: string, handler: Handler, options: RouteOptions = {}) {
+  public patch(path: string, handler: Handler<Env>, options: RouteOptions = {}) {
     return this.push('PATCH', path, handler, options);
   }
 
   /** Add a route that matches the DELETE method. */
-  public delete(path: string, handler: Handler, options: RouteOptions = {}) {
+  public delete(path: string, handler: Handler<Env>, options: RouteOptions = {}) {
     return this.push('DELETE', path, handler, options);
   }
 
   /** Add a route that matches the HEAD method. */
-  public head(path: string, handler: Handler, options: RouteOptions = {}) {
+  public head(path: string, handler: Handler<Env>, options: RouteOptions = {}) {
     return this.push('HEAD', path, handler, options);
   }
 
   /** Add a route that matches the OPTIONS method. */
-  public options(path: string, handler: Handler, options: RouteOptions = {}) {
+  public options(path: string, handler: Handler<Env>, options: RouteOptions = {}) {
     return this.push('OPTIONS', path, handler, options);
   }
 
   /** Add a middlewares handler */
-  public use(handler: Handler, options: RouteOptions = {}) {
+  public use(handler: Handler<Env>, options: RouteOptions = {}) {
     return this.push('ALL', '*', handler, options);
   }
 
   /** Add a middlewares for handling options requets */
-  public allowedMethods(): Handler {
-    return async (ctx: Context) => {
+  public allowedMethods(): Handler<Env> {
+    return async (ctx: Context<Env>) => {
       const url = new URL(ctx.request.url);
       const allow: { [key: string]: boolean } = {
         OPTIONS: true,
@@ -164,7 +164,7 @@ export class Router {
     };
   }
 
-  public *matches(method: Method, path: string): IterableIterator<RouteMatch<Handler> | null> {
+  public *matches(method: Method, path: string): IterableIterator<RouteMatch<Handler<Env>> | null> {
     for (const route of this.routes) {
       // Skip immediately if method doesn't match
       if (route.method !== method && route.method !== 'ALL') continue;
@@ -184,8 +184,7 @@ export class Router {
     return null;
   }
 
-  public async handle(event: FetchEvent & { env?: { [key: string]: string } }): Promise<Response> {
-    const { request } = event;
+  public async handle(request: Request, env: Env, context: ExecutionContext): Promise<Response> {
     const { pathname, searchParams } = new URL(request.url);
     const matches = this.matches(request.method as Method, pathname);
     const callbacks: RouteCallback[] = [];
@@ -196,7 +195,8 @@ export class Router {
       headers: request.headers,
       params: {},
       state: {},
-      event,
+      env,
+      event: context,
     };
 
     for await (const match of matches) {
@@ -245,7 +245,7 @@ export class Router {
   private push(
     method: Method | MethodWildcard,
     path: string,
-    handler: Handler,
+    handler: Handler<Env>,
     options: RouteOptions,
   ) {
     const keys: Keys = [];

@@ -1,6 +1,6 @@
 import { Params } from './Params';
 
-export type Context = {
+export type Context<Env = { [key: string]: string | DurableObjectNamespace | KVNamespace }> = {
   request: Request;
   params: Params;
   query: URLSearchParams;
@@ -9,6 +9,6 @@ export type Context = {
   // To keep state for the current request
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   state: { [key: string]: any };
-  // The raw event
-  event: FetchEvent & { env?: { [key: string]: string | DurableObjectNamespace | KVNamespace } };
+  env: Env;
+  event: ExecutionContext;
 };
