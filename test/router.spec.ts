@@ -3,9 +3,11 @@ import { Router } from '../src/Router';
 
 declare var global: any;
 
-function createEvent(request: Request): FetchEvent {
-  // @ts-ignore Sadly the typing seem to be off here, creating a FetchEvent is valid in a test environment.
-  return new FetchEvent('fetch', { request });
+function createExecutionContext(): ExecutionContext {
+  return {
+    waitUntil: () => Promise.resolve(),
+    passThroughOnException: () => {},
+  };
 }
 
 describe('get', () => {
@@ -22,11 +24,28 @@ describe('get', () => {
     });
 
     const request = new Request('/', { method: 'GET', body: 'hello' });
-    const fetchEvent: FetchEvent = createEvent(request);
 
-    const response = await router.handle(fetchEvent);
+    const response = await router.handle(request, {}, createExecutionContext());
 
     expect(response.status).toBe(200);
+  });
+
+  it('should use strictly typed env', async () => {
+    interface MyEnv {
+      test: string;
+    }
+    const router = new Router<MyEnv>();
+
+    router.get('/', async (ctx) => {
+      return new Response(ctx.env.test);
+    });
+
+    const request = new Request('/', { method: 'GET', body: 'hello' });
+
+    const response = await router.handle(request, { test: 'testValue' }, createExecutionContext());
+    const body = await response.text();
+
+    expect(body).toBe('testValue');
   });
 });
 
@@ -41,9 +60,8 @@ describe('allow headers', () => {
     router.use(router.allowedMethods());
 
     const request = new Request('/', { method: 'OPTIONS' });
-    const fetchEvent: FetchEvent = createEvent(request);
 
-    const response = await router.handle(fetchEvent);
+    const response = await router.handle(request, {}, createExecutionContext());
 
     expect(response.status).toBe(204);
     expect(response.headers.get('allow')).toBe('OPTIONS, GET, HEAD');
@@ -60,9 +78,8 @@ describe('allow headers', () => {
       router.use(router.allowedMethods());
 
       const request = new Request('/', { method: 'HEAD' });
-      const fetchEvent: FetchEvent = createEvent(request);
 
-      const response = await router.handle(fetchEvent);
+      const response = await router.handle(request, {}, createExecutionContext());
       const body = await response.text();
 
       expect(response.status).toBe(200);
@@ -91,9 +108,8 @@ describe('middlewares', () => {
     });
 
     const request = new Request('/', { method: 'GET' });
-    const fetchEvent: FetchEvent = createEvent(request);
 
-    const response = await router.handle(fetchEvent);
+    const response = await router.handle(request, {}, createExecutionContext());
     const body = await response.text();
 
     expect(body).toBe('middleware');
@@ -117,9 +133,8 @@ describe('middlewares', () => {
     });
 
     const request = new Request('/', { method: 'GET' });
-    const fetchEvent: FetchEvent = createEvent(request);
 
-    const response = await router.handle(fetchEvent);
+    const response = await router.handle(request, {}, createExecutionContext());
     const body = await response.text();
 
     expect(response.status).toBe(500);

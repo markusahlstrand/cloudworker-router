@@ -1,4 +1,6 @@
-# Cloudworker Router V2
+# Cloudworker Router V3
+
+With V3 of the router we now support wrangler V2 module, which required a change of the handle function signature.
 
 This is a rewrite of the v1 router based on the [tiny-request-router](https://www.npmjs.com/package/tiny-request-router) that does the heavy lifting.
 
@@ -34,9 +36,11 @@ router.get('/', async (ctx) => {
   return new Response('Hello World');
 });
 
-addEventListener('fetch', (event) => {
-  event.respondWith(router.resolve(event));
-});
+export default {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    return router.handle(reuquest, env, ctx);
+  },
+};
 ```
 
 The router exposes get, post, patch and del methods as shorthands for the most common use cases. For examples of their usage, see the example folder. HEAD requests are handled automatically by the router.
@@ -94,16 +98,37 @@ An example of a context object created for a request:
 ```js
 {
   request: Request,
-  event: {
-    request: Request,
-    type: "fetch"
-  },
+  event: ExecutionContext
   state: {},
   query: {
     foo: "bar"
   },
   params: {}
+  env: {}
 }
+```
+
+### Env
+
+The Router is generic class that makes it possible to get strictly typed env.
+
+```js
+const Router = require('cloudworker-router');
+
+interface MyEnv {
+  test: string;
+}
+const router = new Router<MyEnv>();
+
+router.get('/', async (ctx) => {
+  return new Response(ctx.env.test);
+});
+
+export default {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    return router.handle(reuquest, env, ctx);
+  },
+};
 ```
 
 ### Allow headers
