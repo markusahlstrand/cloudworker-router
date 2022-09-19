@@ -1,18 +1,22 @@
 import makeServiceWorkerEnv from 'service-worker-mock';
 import { Router } from '../src/Router';
 
-declare var global: any;
-
 function createExecutionContext(): ExecutionContext {
   return {
     waitUntil: () => Promise.resolve(),
-    passThroughOnException: () => {},
+    passThroughOnException: jest.fn(),
   };
+}
+
+function createFetcher(): Fetcher{
+  return {
+    fetch: jest.fn(),
+  }
 }
 
 describe('get', () => {
   beforeEach(() => {
-    Object.assign(global, makeServiceWorkerEnv());
+    Object.assign(globalThis, makeServiceWorkerEnv());
     jest.resetModules();
   });
 
@@ -33,16 +37,15 @@ describe('get', () => {
   it('should use strictly typed env', async () => {
     interface MyEnv {
       test: string;
+      bindingService: Fetcher;
     }
     const router = new Router<MyEnv>();
 
     router.get('/', async (ctx) => {
       return new Response(ctx.env.test);
     });
-
     const request = new Request('/', { method: 'GET', body: 'hello' });
-
-    const response = await router.handle(request, { test: 'testValue' }, createExecutionContext());
+    const response = await router.handle(request, { test: 'testValue', bindingService: createFetcher() }, createExecutionContext());
     const body = await response.text();
 
     expect(body).toBe('testValue');
@@ -90,7 +93,7 @@ describe('allow headers', () => {
 
 describe('middlewares', () => {
   beforeEach(() => {
-    Object.assign(global, makeServiceWorkerEnv());
+    Object.assign(globalThis, makeServiceWorkerEnv());
     jest.resetModules();
   });
 
