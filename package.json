@@ -9,8 +9,7 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint src/**",
-    "unit": "jest --config jestconfig.json --verbose",
-    "test": "yarn run unit && yarn run lint",
+    "test": "yarn run lint && jest",
     "prepare": "husky install; yarn build",
     "semantic-release": "semantic-release"
   },
