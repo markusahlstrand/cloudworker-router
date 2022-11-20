@@ -1,4 +1,4 @@
-import { Key as TokenKey, pathToRegexp, TokensToRegexpOptions } from 'path-to-regexp';
+import { Key as TokenKey, pathToRegexp } from 'path-to-regexp';
 import { Context } from './types/Context';
 import { RouteCallback } from './types/RouteCallback';
 import { Params } from './types/Params';
@@ -14,39 +14,10 @@ export type MethodWildcard = 'ALL';
 // Let the router know that handlers are async functions returning a Response
 type Handler<Env> = (ctx: Context<Env>) => Promise<Response | RouteCallback | undefined>;
 
-/**
- * Optional route options.
- *
- * @example
- * // When `true` the regexp will be case sensitive. (default: `false`)
- * sensitive?: boolean;
- *
- * // When `true` the regexp allows an optional trailing delimiter to match. (default: `false`)
- * strict?: boolean;
- *
- * // When `true` the regexp will match to the end of the string. (default: `true`)
- * end?: boolean;
- *
- * // When `true` the regexp will match from the beginning of the string. (default: `true`)
- * start?: boolean;
- *
- * // Sets the final character for non-ending optimistic matches. (default: `/`)
- * delimiter?: string;
- *
- * // List of characters that can also be "end" characters.
- * endsWith?: string;
- *
- * // Encode path tokens for use in the `RegExp`.
- * encode?: (value: string) => string;
- */
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface RouteOptions extends TokensToRegexpOptions {}
-
 export interface Route<Handler> {
   method: Method | MethodWildcard;
   path: string;
   regexp: RegExp;
-  options: RouteOptions;
   keys: Keys;
   handler: Handler;
 }
@@ -83,53 +54,76 @@ export type Keys = Array<Key>;
  *
  * const router = new Router<Handler>()
  */
-export class Router<Env = { [key: string]: string | DurableObjectNamespace | KVNamespace | Fetcher}> {
+export class Router<
+  Env = { [key: string]: string | DurableObjectNamespace | KVNamespace | Fetcher },
+> {
   /** List of all registered routes. */
   public routes: Array<Route<Handler<Env>>> = [];
 
   /** Add a route that matches any method. */
-  public all(path: string, handler: Handler<Env>, options: RouteOptions = {}) {
-    return this.push('ALL', path, handler, options);
+  public all(path: string, handler: Handler<Env>) {
+    return this.push('ALL', path, handler);
   }
 
   /** Add a route that matches the GET method. */
-  public get(path: string, handler: Handler<Env>, options: RouteOptions = {}) {
-    return this.push('GET', path, handler, options).push('HEAD', path, handler, options);
+  public get(path: string | RegExp, ...handlers: Handler<Env>[]) {
+    handlers.forEach((handler) => {
+      this.push('GET', path, handler).push('HEAD', path, handler);
+    });
+    return this;
   }
 
   /** Add a route that matches the POST method. */
-  public post(path: string, handler: Handler<Env>, options: RouteOptions = {}) {
-    return this.push('POST', path, handler, options);
+  public post(path: string | RegExp, ...handlers: Handler<Env>[]) {
+    handlers.forEach((handler) => {
+      this.push('POST', path, handler);
+    });
+    return this;
   }
 
   /** Add a route that matches the PUT method. */
-  public put(path: string, handler: Handler<Env>, options: RouteOptions = {}) {
-    return this.push('PUT', path, handler, options);
+  public put(path: string | RegExp, ...handlers: Handler<Env>[]) {
+    handlers.forEach((handler) => {
+      this.push('PUT', path, handler);
+    });
+    return this;
   }
 
   /** Add a route that matches the PATCH method. */
-  public patch(path: string, handler: Handler<Env>, options: RouteOptions = {}) {
-    return this.push('PATCH', path, handler, options);
+  public patch(path: string | RegExp, ...handlers: Handler<Env>[]) {
+    handlers.forEach((handler) => {
+      this.push('PATCH', path, handler);
+    });
+    return this;
   }
 
   /** Add a route that matches the DELETE method. */
-  public delete(path: string, handler: Handler<Env>, options: RouteOptions = {}) {
-    return this.push('DELETE', path, handler, options);
+  public delete(path: string | RegExp, ...handlers: Handler<Env>[]) {
+    handlers.forEach((handler) => {
+      this.push('DELETE', path, handler);
+    });
+    return this;
   }
 
   /** Add a route that matches the HEAD method. */
-  public head(path: string, handler: Handler<Env>, options: RouteOptions = {}) {
-    return this.push('HEAD', path, handler, options);
+  public head(path: string | RegExp, ...handlers: Handler<Env>[]) {
+    handlers.forEach((handler) => {
+      this.push('HEAD', path, handler);
+    });
+    return this;
   }
 
   /** Add a route that matches the OPTIONS method. */
-  public options(path: string, handler: Handler<Env>, options: RouteOptions = {}) {
-    return this.push('OPTIONS', path, handler, options);
+  public options(path: string | RegExp, ...handlers: Handler<Env>[]) {
+    handlers.forEach((handler) => {
+      this.push('OPTIONS', path, handler);
+    });
+    return this;
   }
 
   /** Add a middlewares handler */
-  public use(handler: Handler<Env>, options: RouteOptions = {}) {
-    return this.push('ALL', '*', handler, options);
+  public use(handler: Handler<Env>) {
+    return this.push('ALL', '*', handler);
   }
 
   /** Add a middlewares for handling options requets */
@@ -172,10 +166,6 @@ export class Router<Env = { [key: string]: string | DurableObjectNamespace | KVN
       if (route.path === '(.*)') {
         yield { ...route, params: { '0': route.path } };
       }
-      if (route.path === '/' && route.options.end === false) {
-        yield { ...route, params: {} };
-      }
-      // If method matches try to match path regexp
       const matches = route.regexp.exec(path);
       if (!matches || !matches.length) continue;
       yield { ...route, matches, params: keysToParams(matches, route.keys) };
@@ -242,18 +232,14 @@ export class Router<Env = { [key: string]: string | DurableObjectNamespace | KVN
     });
   }
 
-  private push(
-    method: Method | MethodWildcard,
-    path: string,
-    handler: Handler<Env>,
-    options: RouteOptions,
-  ) {
+  private push(method: Method | MethodWildcard, path: string | RegExp, handler: Handler<Env>) {
     const keys: Keys = [];
     if (path === '*') {
       path = '(.*)';
     }
-    const regexp = pathToRegexp(path, keys, options);
-    this.routes.push({ method, path, handler, keys, options, regexp });
+
+    const regexp = pathToRegexp(path, keys);
+    this.routes.push({ method, path: path.toString(), handler, keys, regexp });
     return this;
   }
 }

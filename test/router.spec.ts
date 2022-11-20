@@ -8,10 +8,10 @@ function createExecutionContext(): ExecutionContext {
   };
 }
 
-function createFetcher(): Fetcher{
+function createFetcher(): Fetcher {
   return {
     fetch: jest.fn(),
-  }
+  };
 }
 
 describe('get', () => {
@@ -45,10 +45,30 @@ describe('get', () => {
       return new Response(ctx.env.test);
     });
     const request = new Request('/', { method: 'GET', body: 'hello' });
-    const response = await router.handle(request, { test: 'testValue', bindingService: createFetcher() }, createExecutionContext());
+    const response = await router.handle(
+      request,
+      { test: 'testValue', bindingService: createFetcher() },
+      createExecutionContext(),
+    );
     const body = await response.text();
 
     expect(body).toBe('testValue');
+  });
+});
+
+describe('routing', () => {
+  it('should support regExp routing', async () => {
+    const router = new Router();
+
+    router.get(/test\d/i, async (ctx) => {
+      return new Response('Hello');
+    });
+
+    const request = new Request('/test5', { method: 'GET', body: 'hello' });
+
+    const response = await router.handle(request, {}, createExecutionContext());
+
+    expect(response.status).toBe(200);
   });
 });
 
@@ -142,5 +162,29 @@ describe('middlewares', () => {
 
     expect(response.status).toBe(500);
     expect(body).toBe('test');
+  });
+
+  it('should pass a middleware when declaring a route', async () => {
+    const router = new Router();
+
+    const middleware = async function (ctx) {
+      ctx.state.order = 'A';
+      return async (response: Response | undefined) => {
+        ctx.state.order += 'C';
+        return new Response(ctx.state.order);
+      };
+    };
+
+    router.get('/', middleware, async (ctx) => {
+      ctx.state.order += 'B';
+      return new Response('handler');
+    });
+
+    const request = new Request('/', { method: 'GET' });
+
+    const response = await router.handle(request, {}, createExecutionContext());
+    const body = await response.text();
+
+    expect(body).toBe('ABC');
   });
 });
