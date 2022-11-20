@@ -12,7 +12,7 @@ export type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPT
 export type MethodWildcard = 'ALL';
 
 // Let the router know that handlers are async functions returning a Response
-type Handler<Env> = (ctx: Context<Env>) => Promise<Response | RouteCallback | undefined>;
+export type Handler<Env> = (ctx: Context<Env>) => Promise<Response | RouteCallback | undefined>;
 
 export interface Route<Handler> {
   method: Method | MethodWildcard;
