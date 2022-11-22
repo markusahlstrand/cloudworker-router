@@ -1,13 +1,10 @@
 # Cloudworker Router V4
 
-The router V4 accepts passing an array of middlewares in each route, just like the koa-router does. This change is breaking as it's no longer possible to pass the options to path-to-regexp as a third option.
-To make it more flexible the V4 also supports adding RegExp support to the routing in addition to the path-to-regexp strings.
+The router V4 is an update to make it behave more like koa-router with a the more familiar `async (ctx, next)` syntax.
 
-# Cloudworker Router V3
+The new version accepts passing an array of middlewares in each route, just like the koa-router does. This change is breaking as it's no longer possible to pass the options to path-to-regexp as a third option.
 
-With V3 of the router we now support wrangler V2 module, which required a change of the handle function signature.
-
-This is a rewrite of the v1 router based on the [tiny-request-router](https://www.npmjs.com/package/tiny-request-router) that does the heavy lifting.
+To make it more flexible it also supports adding RegExp support to the routing in addition to the path-to-regexp strings.
 
 The router is based on [path-to-regexp](https://github.com/pillarjs/path-to-regexp) for the path matching, which is used by many other routers as well.
 
@@ -70,25 +67,37 @@ router.get('/:wildcard*', async (ctx) => {
 
 ### Middlewares
 
-If a handler returns a function rather than a response it's considered a middlewares and will be triggered after the response as well. This makes it possible to make for instance request loggers and error handlers.
+The middlewares are implemented by calling next, just like in koa-router.
+
+The can be added by calling router.use:
 
 ```js
-router.use(async (ctx) => {
+router.use(async (ctx, next) => {
   // Maybe store the request start timestamp
   const start = new Date();
 
-  return async (response: Response, error: Error | null) {
-    // Log something?
-
-    if(error) {
-      // handle an error
-      return new Response(error.message, {
-        status: 500
-      })
-    }
-
-    return response;
+  try {
+    return await next();
+  } catch (err) {
+    // handle an error
+    return new Response(error.message, {
+      status: 500,
+    });
   }
+});
+```
+
+It is also posisble to pass a middlewared when defining a route:
+
+```js
+async function middleware(ctx, next) {
+  console.log('do something clever');
+
+  await next();
+}
+
+router.get('/test', middleware, async (ctx) => {
+  return new Response('Hello');
 });
 ```
 
@@ -117,11 +126,16 @@ An example of a context object created for a request:
 
 The Router is generic class that makes it possible to get strictly typed env.
 
+It supports the cloudflare services that is passed as env variables, such as Fetcher and KVStorage.
+
 ```js
 const Router = require('cloudworker-router');
 
 interface MyEnv {
   test: string;
+  KV_NAMESPACE: KVNamespace;
+  DURABLE_OBJECT_NAMESPACE: DurableObjectNamespace;
+  A_FETCHER: Fetcher;
 }
 const router = new Router<MyEnv>();
 
@@ -157,7 +171,3 @@ router.use(router.allowMethods());
 ### Chunked encoding
 
 By default cloudflare uses chunked encoding. Content-Length headers are not allowed in chunked responses according to the http-spec so they are automatically removed by cloudflare. If the worker respondes directly with a buffer rather than streaming the response cloudflare will automatically add/overwrite with a correct Content-Length header.
-
-### Head requests
-
-If a worker respondes with a body to a head request cloudflare will remove the body and set the correct Content-Length headers. From a router perspective the head requests are handled just like get requests.
