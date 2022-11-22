@@ -1,3 +1,8 @@
+# Cloudworker Router V4
+
+The router V4 accepts passing an array of middlewares in each route, just like the koa-router does. This change is breaking as it's no longer possible to pass the options to path-to-regexp as a third option.
+To make it more flexible the V4 also supports adding RegExp support to the routing in addition to the path-to-regexp strings.
+
 # Cloudworker Router V3
 
 With V3 of the router we now support wrangler V2 module, which required a change of the handle function signature.

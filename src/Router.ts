@@ -1,18 +1,24 @@
 import { Key as TokenKey, pathToRegexp } from 'path-to-regexp';
 import { Context } from './types/Context';
-import { RouteCallback } from './types/RouteCallback';
 import { Params } from './types/Params';
 
 // https://basarat.gitbooks.io/typescript/docs/tips/barrel.html
-export { pathToRegexp };
+// export { pathToRegexp };
 export { Context };
 
 /** Valid HTTP methods for matching. */
 export type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS';
 export type MethodWildcard = 'ALL';
 
+export interface Next {
+  default(): Promise<Response | undefined>;
+}
+
 // Let the router know that handlers are async functions returning a Response
-export type Handler<Env> = (ctx: Context<Env>) => Promise<Response | RouteCallback | undefined>;
+export type Handler<Env> = (
+  ctx: Context<Env>,
+  next: () => Promise<Response | undefined>,
+) => Promise<Response | undefined>;
 
 export interface Route<Handler> {
   method: Method | MethodWildcard;
@@ -68,7 +74,8 @@ export class Router<
   /** Add a route that matches the GET method. */
   public get(path: string | RegExp, ...handlers: Handler<Env>[]) {
     handlers.forEach((handler) => {
-      this.push('GET', path, handler).push('HEAD', path, handler);
+      this.push('GET', path, handler);
+      this.push('HEAD', path, handler);
     });
     return this;
   }
@@ -158,26 +165,42 @@ export class Router<
     };
   }
 
-  public *matches(method: Method, path: string): IterableIterator<RouteMatch<Handler<Env>> | null> {
-    for (const route of this.routes) {
+  public matches(method: Method, path: string): RouteMatch<Handler<Env>>[] {
+    const results: RouteMatch<Handler<Env>>[] = [];
+
+    this.routes.forEach((route) => {
       // Skip immediately if method doesn't match
-      if (route.method !== method && route.method !== 'ALL') continue;
-      // Speed optimizations for catch all wildcard routes
-      if (route.path === '(.*)') {
-        yield { ...route, params: { '0': route.path } };
-      }
+      if (route.method !== method && route.method !== 'ALL') return;
+
       const matches = route.regexp.exec(path);
-      if (!matches || !matches.length) continue;
-      yield { ...route, matches, params: keysToParams(matches, route.keys) };
+      if (!matches || !matches.length) return;
+
+      results.push({ ...route, matches, params: keysToParams(matches, route.keys) });
+    });
+
+    return results;
+  }
+
+  protected async handleMatches<Env>(
+    ctx: Context<Env>,
+    ...routeMatches: RouteMatch<Handler<Env>>[]
+  ) {
+    const routeMatch = routeMatches.shift();
+
+    if (!routeMatch) {
+      return null;
     }
 
-    return null;
+    ctx.params = routeMatch.params;
+
+    return routeMatch.handler(ctx, () => {
+      return this.handleMatches<Env>(ctx, ...routeMatches);
+    });
   }
 
   public async handle(request: Request, env: Env, context: ExecutionContext): Promise<Response> {
     const { pathname, searchParams } = new URL(request.url);
     const matches = this.matches(request.method as Method, pathname);
-    const callbacks: RouteCallback[] = [];
 
     const ctx = {
       request,
@@ -189,47 +212,20 @@ export class Router<
       event: context,
     };
 
-    for await (const match of matches) {
-      if (match) {
-        // Update the params for the currenct match
-        ctx.params = match.params;
+    const response = await this.handleMatches(ctx, ...matches);
 
-        let error: Error | null = null;
-        let result: Response | RouteCallback | undefined;
-
-        // Call the async function of that match
-        try {
-          result = await match.handler(ctx);
-        } catch (err) {
-          error = err as Error;
-          // Set a default error response
-          result = new Response('Server Error', { status: 500 });
-        }
-
-        if (result instanceof Response) {
-          for await (const callback of callbacks) {
-            try {
-              result = await callback(result, error);
-            } catch (err) {
-              error = err as Error;
-            }
-          }
-
-          // Remove the body for head requests
-          if (request.method === 'HEAD') {
-            return new Response('', result);
-          }
-
-          return result;
-        } else if (result instanceof Function) {
-          callbacks.push(result);
-        }
-      }
+    if (!response) {
+      return new Response('Not Found', {
+        status: 404,
+      });
     }
 
-    return new Response('Not Found', {
-      status: 404,
-    });
+    // Strip body from head requests
+    if (request.method === 'HEAD') {
+      return new Response('', response);
+    }
+
+    return response;
   }
 
   private push(method: Method | MethodWildcard, path: string | RegExp, handler: Handler<Env>) {
