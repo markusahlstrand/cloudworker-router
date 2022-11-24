@@ -1,24 +1,9 @@
 import { Key as TokenKey, pathToRegexp } from 'path-to-regexp';
-import { Context } from './types/Context';
-import { Params } from './types/Params';
-
-// https://basarat.gitbooks.io/typescript/docs/tips/barrel.html
-// export { pathToRegexp };
-export { Context };
+import { Context, Handler, Params } from './types';
 
 /** Valid HTTP methods for matching. */
 export type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS';
 export type MethodWildcard = 'ALL';
-
-export interface Next {
-  default(): Promise<Response | undefined>;
-}
-
-// Let the router know that handlers are async functions returning a Response
-export type Handler<Env> = (
-  ctx: Context<Env>,
-  next: () => Promise<Response | undefined>,
-) => Promise<Response | undefined>;
 
 export interface Route<Handler> {
   method: Method | MethodWildcard;
