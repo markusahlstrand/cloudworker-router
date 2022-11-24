@@ -1,6 +1,8 @@
 import { Key as TokenKey, pathToRegexp } from 'path-to-regexp';
 import { Context, Handler, Params } from './types';
 
+export { Context };
+
 /** Valid HTTP methods for matching. */
 export type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS';
 export type MethodWildcard = 'ALL';
