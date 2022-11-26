@@ -8,7 +8,7 @@ export type ContextWithBody<Env = any> = Context<Env> & {
   files?: any;
 };
 
-export default async function bodyparser(ctx: ContextWithBody, next: Next) {
+export async function bodyparser(ctx: ContextWithBody, next: Next) {
   const contentype = ctx.headers.get('content-type');
 
   if (contentype?.startsWith('application/json')) {

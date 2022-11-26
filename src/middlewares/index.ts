@@ -1,1 +1,1 @@
-export * as bodyparser from './bodyparser';
+export * from './bodyparser';
