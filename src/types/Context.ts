@@ -1,6 +1,8 @@
 import { Params } from './Params';
 
-export type Context<Env = { [key: string]: string | DurableObjectNamespace | KVNamespace }> = {
+export type Context<
+  Env = { [key: string]: string | DurableObjectNamespace | KVNamespace | D1Database },
+> = {
   request: Request;
   params: Params;
   query: URLSearchParams;

@@ -1,3 +1,3 @@
-export * from './types/Context';
-export * from './types/RouteCallback';
+export * from './types';
 export * from './Router';
+export * from './middlewares';

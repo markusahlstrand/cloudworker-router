@@ -1,5 +1,9 @@
 import makeServiceWorkerEnv from 'service-worker-mock';
-import { Router } from '../src/Router';
+import { Context, Router } from '../src/Router';
+
+interface Env {
+  dummy: string;
+}
 
 function createExecutionContext(): ExecutionContext {
   return {
@@ -8,10 +12,10 @@ function createExecutionContext(): ExecutionContext {
   };
 }
 
-function createFetcher(): Fetcher{
+function createFetcher(): Fetcher {
   return {
     fetch: jest.fn(),
-  }
+  };
 }
 
 describe('get', () => {
@@ -45,10 +49,30 @@ describe('get', () => {
       return new Response(ctx.env.test);
     });
     const request = new Request('/', { method: 'GET', body: 'hello' });
-    const response = await router.handle(request, { test: 'testValue', bindingService: createFetcher() }, createExecutionContext());
+    const response = await router.handle(
+      request,
+      { test: 'testValue', bindingService: createFetcher() },
+      createExecutionContext(),
+    );
     const body = await response.text();
 
     expect(body).toBe('testValue');
+  });
+});
+
+describe('routing', () => {
+  it('should support regExp routing', async () => {
+    const router = new Router();
+
+    router.get(/test\d/i, async (ctx) => {
+      return new Response('Hello');
+    });
+
+    const request = new Request('/test5', { method: 'GET', body: 'hello' });
+
+    const response = await router.handle(request, {}, createExecutionContext());
+
+    expect(response.status).toBe(200);
   });
 });
 
@@ -69,25 +93,23 @@ describe('allow headers', () => {
     expect(response.status).toBe(204);
     expect(response.headers.get('allow')).toBe('OPTIONS, GET, HEAD');
   });
+});
 
-  describe('head requests', () => {
-    it('should respond to head requets', async () => {
-      const router = new Router();
+describe('head requests', () => {
+  it('should respond to head requets', async () => {
+    const router = new Router();
 
-      router.get('/', async (ctx) => {
-        return new Response('Hello');
-      });
-
-      router.use(router.allowedMethods());
-
-      const request = new Request('/', { method: 'HEAD' });
-
-      const response = await router.handle(request, {}, createExecutionContext());
-      const body = await response.text();
-
-      expect(response.status).toBe(200);
-      expect(body).toBe('');
+    router.get('/', async (ctx) => {
+      return new Response('Hello');
     });
+
+    const request = new Request('/', { method: 'HEAD' });
+
+    const response = await router.handle(request, {}, createExecutionContext());
+    const body = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(body).toBe('');
   });
 });
 
@@ -97,13 +119,11 @@ describe('middlewares', () => {
     jest.resetModules();
   });
 
-  it('should rewrite response in middleware', async () => {
-    const router = new Router();
+  it('should pass through an empty middleware', async () => {
+    const router = new Router<Env>();
 
-    router.use(async (ctx) => {
-      return async (response: Response | undefined) => {
-        return new Response('middleware');
-      };
+    router.use(async (ctx: Context<Env>, next: () => Promise<Response | undefined>) => {
+      return await next();
     });
 
     router.get('/', async (ctx) => {
@@ -112,7 +132,28 @@ describe('middlewares', () => {
 
     const request = new Request('/', { method: 'GET' });
 
-    const response = await router.handle(request, {}, createExecutionContext());
+    const response = await router.handle(request, { dummy: '' }, createExecutionContext());
+    const body = await response.text();
+
+    expect(body).toBe('handler');
+  });
+
+  it('should rewrite response in middleware', async () => {
+    const router = new Router<Env>();
+
+    router.use(async (ctx: Context<Env>, next: () => Promise<Response | undefined>) => {
+      await next();
+
+      return new Response('middleware');
+    });
+
+    router.get('/', async (ctx) => {
+      return new Response('handler');
+    });
+
+    const request = new Request('/', { method: 'GET' });
+
+    const response = await router.handle(request, { dummy: '' }, createExecutionContext());
     const body = await response.text();
 
     expect(body).toBe('middleware');
@@ -121,15 +162,17 @@ describe('middlewares', () => {
   it('should handle errors in middleware', async () => {
     const router = new Router();
 
-    router.use(async (ctx) => {
-      return async (response: Response | undefined, error: Error | null) => {
-        if (error) {
-          return new Response(error.message, { status: 500 });
-        }
+    async function errorHandler(ctx, next) {
+      try {
+        await next();
+      } catch (err) {
+        return new Response('Error', {
+          status: 500,
+        });
+      }
+    }
 
-        return new Response('middleware');
-      };
-    });
+    router.use(errorHandler);
 
     router.get('/', async (ctx) => {
       throw new Error('test');
@@ -141,6 +184,32 @@ describe('middlewares', () => {
     const body = await response.text();
 
     expect(response.status).toBe(500);
-    expect(body).toBe('test');
+    expect(body).toBe('Error');
+  });
+
+  it('should pass a middleware when declaring a route', async () => {
+    const router = new Router();
+
+    async function middleware(ctx, next): Promise<Response> {
+      ctx.state.order = 'A';
+
+      await next(ctx);
+      ctx.state.order += 'C';
+
+      // Overwrite the response with the state to check the order
+      return new Response(ctx.state.order);
+    }
+
+    router.get('/', middleware, async (ctx) => {
+      ctx.state.order += 'B';
+      return new Response('handler');
+    });
+
+    const request = new Request('/', { method: 'GET' });
+
+    const response = await router.handle(request, {}, createExecutionContext());
+    const body = await response.text();
+
+    expect(body).toBe('ABC');
   });
 });
