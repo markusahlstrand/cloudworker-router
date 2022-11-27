@@ -15,6 +15,7 @@ function createExecutionContext(): ExecutionContext {
 function createFetcher(): Fetcher {
   return {
     fetch: jest.fn(),
+    connect: jest.fn(),
   };
 }
 
