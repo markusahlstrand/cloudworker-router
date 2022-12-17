@@ -1,6 +1,6 @@
 {
   "name": "cloudworker-router",
-  "version": "4.0.7",
+  "version": "4.0.8",
   "description": "A router for cloudflare workers",
   "files": [
     "dist/src/**/*"

@@ -146,7 +146,9 @@ export class Router<
       return new Response(null, {
         status: 204,
         headers: {
-          allow: Object.keys(allow).join(', '),
+          'Access-Control-Allow-Methods': Object.keys(allow).join(', '),
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Content-Type',
         },
       });
     };
