@@ -11,7 +11,7 @@ The router is based on [path-to-regexp](https://github.com/pillarjs/path-to-rege
 The goal is to make a battery included, opinionated typescript router for cloudflare workers.
 
 - Express style routing with router.get, router.post ..
-- Named URL paramters
+- Named URL parameters
 - Multiple route middlewares
 - Responds to OPTIONS requests with allowed methods
 - HEAD request served automagically
@@ -124,9 +124,9 @@ An example of a context object created for a request:
 
 ### Env
 
-The Router is generic class that makes it possible to get strictly typed env.
+The Router is a generic class that makes it possible to get strictly typed env.
 
-It supports the cloudflare services that is passed as env variables, such as Fetcher and KVStorage.
+It supports the Cloudflare services that are passed as env variables, such as Fetcher and KVStorage.
 
 ```js
 const Router = require('cloudworker-router');
@@ -136,6 +136,7 @@ interface MyEnv {
   KV_NAMESPACE: KVNamespace;
   DURABLE_OBJECT_NAMESPACE: DurableObjectNamespace;
   A_FETCHER: Fetcher;
+  A_FETCHER: Queue;
 }
 const router = new Router<MyEnv>();
 
@@ -150,11 +151,25 @@ export default {
 };
 ```
 
+### Bodyparser
+
+There is a basic body parser bundled in the router as this is used in most applications. It handles `application/json` and `application/x-www-form-urlencoded` content types.
+
+To add the body parser to the router:
+
+```js
+import { Router, bodyparser } from 'cloudworker-router';
+
+const router = new Router();
+
+router.use(bodyparser);
+```
+
 ### Allow headers
 
-The router can match OPTIONS request against the registered routes to respond with the correct allowed headers.
+The router can match OPTIONS requests against the registered routes to respond with the correct allowed headers.
 
-To enable handling of OPTIONS requests call allowHeaders after all other routes:
+To enable handling of OPTIONS requests calls allowHeaders after all other routes:
 
 ```js
 const router = new Router();
@@ -165,9 +180,3 @@ router.get('/', async (ctx) => {
 
 router.use(router.allowMethods());
 ```
-
-## Cloudflare specifics
-
-### Chunked encoding
-
-By default cloudflare uses chunked encoding. Content-Length headers are not allowed in chunked responses according to the http-spec so they are automatically removed by cloudflare. If the worker respondes directly with a buffer rather than streaming the response cloudflare will automatically add/overwrite with a correct Content-Length header.

@@ -48,7 +48,16 @@ export type Keys = Array<Key>;
  * const router = new Router<Handler>()
  */
 export class Router<
-  Env = { [key: string]: string | DurableObjectNamespace | KVNamespace | Fetcher },
+  Env = {
+    [key: string]:
+      | string
+      | DurableObjectNamespace
+      | KVNamespace
+      | Fetcher
+      | Queue
+      | D1Database
+      | R2Bucket;
+  },
 > {
   /** List of all registered routes. */
   public routes: Array<Route<Handler<Env>>> = [];
