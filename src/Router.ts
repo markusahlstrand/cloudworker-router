@@ -47,18 +47,7 @@ export type Keys = Array<Key>;
  *
  * const router = new Router<Handler>()
  */
-export class Router<
-  Env = {
-    [key: string]:
-      | string
-      | DurableObjectNamespace
-      | KVNamespace
-      | Fetcher
-      | Queue
-      | D1Database
-      | R2Bucket;
-  },
-> {
+export class Router<Env> {
   /** List of all registered routes. */
   public routes: Array<Route<Handler<Env>>> = [];
 
@@ -179,10 +168,7 @@ export class Router<
     return results;
   }
 
-  protected async handleMatches<Env>(
-    ctx: Context<Env>,
-    ...routeMatches: RouteMatch<Handler<Env>>[]
-  ) {
+  protected async handleMatches(ctx: Context<Env>, ...routeMatches: RouteMatch<Handler<Env>>[]) {
     const routeMatch = routeMatches.shift();
 
     if (!routeMatch) {
@@ -192,18 +178,21 @@ export class Router<
     ctx.params = routeMatch.params;
 
     return routeMatch.handler(ctx, () => {
-      return this.handleMatches<Env>(ctx, ...routeMatches);
+      return this.handleMatches(ctx, ...routeMatches);
     });
   }
 
   public async handle(request: Request, env: Env, context: ExecutionContext): Promise<Response> {
-    const { pathname, searchParams } = new URL(request.url);
+    const { pathname, searchParams, host, hostname } = new URL(request.url);
     const matches = this.matches(request.method as Method, pathname);
 
-    const ctx = {
+    const ctx: Context<Env> = {
       request,
       query: searchParams,
       headers: request.headers,
+      ip: request.headers.get('x-real-ip'),
+      host,
+      hostname,
       params: {},
       state: {},
       env,

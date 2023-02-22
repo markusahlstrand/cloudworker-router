@@ -1,11 +1,12 @@
 import { Params } from './Params';
 
-export type Context<
-  Env = { [key: string]: string | DurableObjectNamespace | KVNamespace | D1Database },
-> = {
+export type Context<Env> = {
   request: Request;
   params: Params;
   query: URLSearchParams;
+  hostname: string;
+  host: string;
+  ip: string | null;
   // For convinience
   headers: Headers;
   // To keep state for the current request
