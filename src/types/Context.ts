@@ -7,6 +7,7 @@ export type Context<Env> = {
   hostname: string;
   host: string;
   ip: string | null;
+  protocol: string;
   // For convinience
   headers: Headers;
   // To keep state for the current request

@@ -183,7 +183,7 @@ export class Router<Env> {
   }
 
   public async handle(request: Request, env: Env, context: ExecutionContext): Promise<Response> {
-    const { pathname, searchParams, host, hostname } = new URL(request.url);
+    const { pathname, searchParams, protocol, host, hostname } = new URL(request.url);
     const matches = this.matches(request.method as Method, pathname);
 
     const ctx: Context<Env> = {
@@ -191,6 +191,7 @@ export class Router<Env> {
       query: searchParams,
       headers: request.headers,
       ip: request.headers.get('x-real-ip'),
+      protocol,
       host,
       hostname,
       params: {},
