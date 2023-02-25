@@ -11,10 +11,19 @@ export type ContextWithBody<Env = any> = Context<Env> & {
 export async function bodyparser(ctx: ContextWithBody, next: Next) {
   const contentype = ctx.headers.get('content-type');
 
-  if (contentype?.startsWith('application/json')) {
-    ctx.body = await ctx.request.json();
-  } else if (contentype?.startsWith('application/x-www-form-urlencoded')) {
-    ctx.body = Object.fromEntries(new URLSearchParams(await ctx.request.text()));
+  try {
+    if (contentype?.startsWith('application/json')) {
+      ctx.body = await ctx.request.json();
+    } else if (contentype?.startsWith('application/x-www-form-urlencoded')) {
+      ctx.body = Object.fromEntries(new URLSearchParams(await ctx.request.text()));
+    }
+    return next();
+  } catch (err) {
+    return new Response('Invalid body format', {
+      status: 400,
+      headers: {
+        'content-type': 'text/plain',
+      },
+    });
   }
-  return next();
 }
