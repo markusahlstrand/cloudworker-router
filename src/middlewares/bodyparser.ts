@@ -15,7 +15,9 @@ export async function bodyparser(ctx: ContextWithBody, next: Next) {
     if (contentype?.startsWith('application/json')) {
       ctx.body = await ctx.request.json();
     } else if (contentype?.startsWith('application/x-www-form-urlencoded')) {
-      ctx.body = Object.fromEntries(new URLSearchParams(await ctx.request.text()));
+      ctx.body = Object.fromEntries(await ctx.request.formData());
+    } else if (contentype?.startsWith('text')) {
+      ctx.body = await ctx.request.text();
     }
     return next();
   } catch (err) {
