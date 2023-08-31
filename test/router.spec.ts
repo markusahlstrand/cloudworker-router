@@ -32,11 +32,25 @@ describe('get', () => {
       return new Response('Hello');
     });
 
-    const request = new Request('/', { method: 'GET', body: 'hello' });
+    const request = new Request('/', { method: 'GET' });
 
     const response = await router.handle(request, {}, createExecutionContext());
 
     expect(response.status).toBe(200);
+  });
+
+  it('should return a 404 for a non existing route', async () => {
+    const router = new Router();
+
+    router.get('/', async (ctx) => {
+      return new Response('Hello');
+    });
+
+    const request = new Request('/other-route', { method: 'GET' });
+
+    const response = await router.handle(request, {}, createExecutionContext());
+
+    expect(response.status).toBe(404);
   });
 
   it('should use strictly typed env', async () => {
@@ -92,7 +106,7 @@ describe('allow headers', () => {
     const response = await router.handle(request, {}, createExecutionContext());
 
     expect(response.status).toBe(204);
-    expect(response.headers.get('allow')).toBe('OPTIONS, GET, HEAD');
+    expect(response.headers.get('Access-Control-Allow-Methods')).toBe('OPTIONS, GET, HEAD');
   });
 });
 

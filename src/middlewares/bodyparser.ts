@@ -8,8 +8,14 @@ export type ContextWithBody<Env = any> = Context<Env> & {
   files?: any;
 };
 
+const METHODS_WITH_BODY = ['POST', 'PUT', 'PATCH'];
+
 export async function bodyparser(ctx: ContextWithBody, next: Next) {
   const contentype = ctx.headers.get('content-type');
+
+  if (!METHODS_WITH_BODY.includes(ctx.request.method)) {
+    return next();
+  }
 
   try {
     if (contentype?.startsWith('application/json')) {
