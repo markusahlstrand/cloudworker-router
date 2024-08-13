@@ -1,3 +1,6 @@
+> [!IMPORTANT]  
+> Use [Hono](https://hono.dev) instead of this package. It's a fantastic router and once it was released there is no need for this package anymore. The api is very similar so it's a easy migration.
+
 # Cloudworker Router V4
 
 The router V4 is an update to make it behave more like koa-router with a the more familiar `async (ctx, next)` syntax.
